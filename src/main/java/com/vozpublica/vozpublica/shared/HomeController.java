@@ -1,0 +1,15 @@
+package com.vozpublica.vozpublica.shared;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("mensagem", "Voz Pública está no ar!");
+        return "index";
+    }
+}
