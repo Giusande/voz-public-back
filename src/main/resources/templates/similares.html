@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="lista">
+    <div class="alert alert-warning" th:if="${!similares.empty}">
+        <strong>Já existem ocorrências parecidas.</strong>
+        Se for o mesmo problema, abra a ocorrência e use <em>Incentivar</em> em vez de registrar de novo.
+        Se for um problema diferente, é só continuar o registro.
+        <ul class="mb-0 mt-2">
+            <li th:each="s : ${similares}">
+                <a th:href="@{/denuncias/{id}(id=${s.id()})}" target="_blank" rel="noopener"
+                   th:text="${s.titulo()}">Título</a>
+                <span class="text-muted small" th:text="' · ' + ${s.bairro()} + ' · ' + ${s.status()}">info</span>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

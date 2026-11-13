@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1 th:text="${mensagem}">Mensagem</h1>
-
+    <p><a th:href="@{/denuncias}">Ver ocorrências</a> | <a th:href="@{/denuncias/nova}">Registrar ocorrência</a></p>
     <div th:if="${usuario == null}">
         <a th:href="@{/login}">Entrar</a> | <a th:href="@{/cadastro}">Cadastrar</a>
     </div>

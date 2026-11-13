@@ -83,6 +83,14 @@ public class Denuncia {
         this.dataAtualizacao = LocalDateTime.now();
     }
 
+    void aplicarStatus(StatusDenuncia novo) {
+        this.status = novo;
+    }
+
+    void aplicarPrioridadeOficial(Prioridade nova) {
+        this.prioridadeOficial = nova;
+    }
+
     public Long getId() { return id; }
     public User getAutor() { return autor; }
     public Categoria getCategoria() { return categoria; }

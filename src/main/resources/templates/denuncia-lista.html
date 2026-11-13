@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ocorrências - Voz Pública</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="container py-4" style="max-width: 860px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 m-0">Ocorrências</h1>
+        <div>
+            <a th:href="@{/}" class="btn btn-outline-secondary btn-sm">Início</a>
+            <a th:href="@{/denuncias/nova}" class="btn btn-primary btn-sm">Registrar ocorrência</a>
+        </div>
+    </div>
+
+    <form th:action="@{/denuncias}" method="get" class="card card-body mb-4">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label for="f-bairro" class="form-label small mb-1">Bairro</label>
+                <input type="text" id="f-bairro" name="bairro" maxlength="100" class="form-control form-control-sm"
+                       th:value="${filtro.bairro}">
+            </div>
+            <div class="col-md-4">
+                <label for="f-regiao" class="form-label small mb-1">Região</label>
+                <select id="f-regiao" name="regiao" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="r : ${regioes}" th:value="${r}" th:text="${r}"
+                            th:selected="${r == filtro.regiao}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-categoria" class="form-label small mb-1">Categoria</label>
+                <select id="f-categoria" name="categoriaId" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"
+                            th:selected="${filtro.categoriaId != null and filtro.categoriaId == c.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-prioridade" class="form-label small mb-1">Prioridade</label>
+                <select id="f-prioridade" name="prioridade" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p}"
+                            th:selected="${p == filtro.prioridade}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-status" class="form-label small mb-1">Situação</label>
+                <select id="f-status" name="status" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                            th:selected="${s == filtro.status}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-ordem" class="form-label small mb-1">Ordenar por</label>
+                <select id="f-ordem" name="ordem" class="form-select form-select-sm">
+                    <option th:each="o : ${ordens}" th:value="${o}" th:text="${o.rotulo}"
+                            th:selected="${o == filtro.ordem}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-de" class="form-label small mb-1">De</label>
+                <input type="date" id="f-de" name="de" class="form-control form-control-sm"
+                       th:value="${filtro.de}">
+            </div>
+            <div class="col-md-4">
+                <label for="f-ate" class="form-label small mb-1">Até</label>
+                <input type="date" id="f-ate" name="ate" class="form-control form-control-sm"
+                       th:value="${filtro.ate}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                <a th:href="@{/denuncias}" class="btn btn-link btn-sm">Limpar</a>
+            </div>
+        </div>
+        <div class="form-text mt-2">
+            A prioridade considerada é a oficial, quando existir; senão, a sugerida pelo cidadão.
+        </div>
+    </form>
+
+    <p class="text-muted small" th:text="${page.totalElements} + ' ocorrência(s) encontrada(s)'">total</p>
+    <p th:if="${page.empty}" class="text-muted">Nenhuma ocorrência encontrada.</p>
+
+    <article class="card mb-3" th:each="d : ${page.content}">
+        <div class="card-body">
+            <h2 class="h5 card-title">
+                <a th:href="@{/denuncias/{id}(id=${d.id})}" th:text="${d.titulo}">Título</a>
+            </h2>
+            <p class="mb-2">
+                <span class="badge text-bg-secondary" th:text="${d.categoria.nome}">Categoria</span>
+                <span class="badge text-bg-info" th:text="${d.status}">STATUS</span>
+                <span class="badge text-bg-light border"
+                      th:text="'Prioridade sugerida: ' + ${d.prioridadeSugerida}">Prioridade</span>
+                <span class="badge text-bg-warning" th:if="${d.prioridadeOficial != null}"
+                      th:text="'Prioridade oficial: ' + ${d.prioridadeOficial}">Oficial</span>
+            </p>
+            <p class="card-text text-muted small mb-1">
+                <span th:text="${d.bairro}">Bairro</span> ·
+                <span th:text="${d.regiao}">Região</span> ·
+                por <span th:text="${d.autor.name}">Autor</span> ·
+                <span th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</span>
+            </p>
+            <p class="card-text small mb-0"
+               th:text="${contadores.get(d.id).curtidas()} + ' curtidas · '
+                      + ${contadores.get(d.id).incentivos()} + ' incentivos · '
+                      + ${contadores.get(d.id).comentarios()} + ' comentários'">contadores</p>
+        </div>
+    </article>
+
+    <nav class="d-flex justify-content-between" th:if="${page.totalPages > 1}">
+        <a class="btn btn-outline-secondary btn-sm" th:if="${page.hasPrevious()}"
+           th:href="@{'/denuncias?' + ${filtro.queryString(page.number - 1)}}">&laquo; Anteriores</a>
+        <span th:unless="${page.hasPrevious()}"></span>
+        <span class="text-muted small align-self-center"
+              th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}">Página</span>
+        <a class="btn btn-outline-secondary btn-sm" th:if="${page.hasNext()}"
+           th:href="@{'/denuncias?' + ${filtro.queryString(page.number + 1)}}">Próximas &raquo;</a>
+        <span th:unless="${page.hasNext()}"></span>
+    </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${d.titulo} + ' - Voz Pública'">Ocorrência</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="container py-4" style="max-width: 760px;">
+    <div class="d-flex justify-content-between mb-3">
+        <a th:href="@{/denuncias}" class="btn btn-outline-secondary btn-sm">&laquo; Ocorrências</a>
+        <a th:if="${podeGerir}" th:href="@{/gestao/denuncias/{id}(id=${d.id})}"
+           class="btn btn-warning btn-sm">Gerenciar (equipe)</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${mensagem}" th:text="${mensagem}"></div>
+
+    <h1 class="h3" th:text="${d.titulo}">Título</h1>
+    <p>
+        <span class="badge text-bg-secondary" th:text="${d.categoria.nome}">Categoria</span>
+        <span class="badge text-bg-info" th:text="${d.status}">STATUS</span>
+        <span class="badge text-bg-light border"
+              th:text="'Prioridade sugerida: ' + ${d.prioridadeSugerida}">Prioridade</span>
+        <span class="badge text-bg-warning" th:if="${d.prioridadeOficial != null}"
+              th:text="'Prioridade oficial: ' + ${d.prioridadeOficial}">Oficial</span>
+    </p>
+
+    <p style="white-space: pre-line;" th:text="${d.descricao}">Descrição</p>
+
+    <div class="mb-3" th:if="${!fotos.empty}">
+        <img th:each="f : ${fotos}" th:src="@{/fotos/{id}(id=${f.id})}"
+             class="img-fluid rounded mb-2" alt="Foto da ocorrência">
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+        <!-- logado -->
+        <form th:if="${autenticado}" th:action="@{/denuncias/{id}/curtir(id=${d.id})}" method="post">
+            <button type="submit" class="btn btn-sm"
+                    th:classappend="${resumo.curtiu()} ? 'btn-primary' : 'btn-outline-primary'"
+                    th:text="(${resumo.curtiu()} ? 'Curtido' : 'Curtir') + ' · ' + ${resumo.curtidas()}">Curtir</button>
+        </form>
+
+        <form th:if="${autenticado and !resumo.incentivou()}"
+              th:action="@{/denuncias/{id}/incentivar(id=${d.id})}" method="post">
+            <button type="submit" class="btn btn-sm btn-outline-success"
+                    th:text="'Incentivar · ' + ${resumo.incentivos()}">Incentivar</button>
+        </form>
+        <button th:if="${autenticado and resumo.incentivou()}" type="button"
+                class="btn btn-sm btn-success" disabled
+                th:text="'Você incentivou · ' + ${resumo.incentivos()}">Incentivado</button>
+
+        <!-- visitante: os botões abrem o modal -->
+        <button th:unless="${autenticado}" type="button" class="btn btn-sm btn-outline-primary"
+                data-bs-toggle="modal" data-bs-target="#modalLogin"
+                th:text="'Curtir · ' + ${resumo.curtidas()}">Curtir</button>
+        <button th:unless="${autenticado}" type="button" class="btn btn-sm btn-outline-success"
+                data-bs-toggle="modal" data-bs-target="#modalLogin"
+                th:text="'Incentivar · ' + ${resumo.incentivos()}">Incentivar</button>
+    </div>
+    <p class="form-text mb-3">
+        <strong>Curtir</strong> é uma reação à publicação.
+        <strong>Incentivar</strong> diz que o problema também afeta você e merece atenção (só uma vez).
+    </p>
+
+    <p class="text-muted small">
+        <span th:if="${d.endereco != null}" th:text="${d.endereco} + ' · '"></span>
+        <span th:text="${d.bairro}">Bairro</span> ·
+        <span th:text="${d.regiao}">Região</span><br>
+        Publicado por <span th:text="${d.autor.name}">Autor</span> em
+        <span th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</span>
+    </p>
+
+    <h2 class="h5 mt-4">Histórico</h2>
+    <ul class="list-group">
+        <li class="list-group-item" th:each="h : ${historico}">
+            <strong th:text="${h.statusAnterior != null ? h.statusAnterior : 'Início'}">ANTERIOR</strong>
+            &rarr;
+            <strong th:text="${h.statusNovo}">NOVO</strong>
+            <span class="text-muted small"
+                  th:text="' · ' + ${#temporals.format(h.dataAlteracao, 'dd/MM/yyyy HH:mm')}">data</span>
+            <div class="small" th:if="${h.observacao != null}" th:text="${h.observacao}">Obs</div>
+            <div th:each="e : ${evidencias.get(h.id)}" class="d-inline-block me-2 mt-2">
+                <img th:src="@{/evidencias/{id}(id=${e.id})}" class="img-thumbnail"
+                     style="max-height: 140px;" alt="Evidência da atualização">
+            </div>
+        </li>
+    </ul>
+
+    <div th:if="${!historicoPrioridade.empty}">
+        <h3 class="h6 mt-3">Prioridade oficial</h3>
+        <ul class="list-group">
+            <li class="list-group-item" th:each="p : ${historicoPrioridade}">
+                <strong th:text="${p.prioridadeAnterior != null ? p.prioridadeAnterior : 'Não definida'}">ANTERIOR</strong>
+                &rarr;
+                <strong th:text="${p.prioridadeNova}">NOVA</strong>
+                <span class="text-muted small"
+                      th:text="' · ' + ${#temporals.format(p.dataAlteracao, 'dd/MM/yyyy HH:mm')}">data</span>
+                <div class="small" th:if="${p.observacao != null}" th:text="${p.observacao}">Obs</div>
+            </li>
+        </ul>
+    </div>
+
+    <h2 class="h5 mt-4" id="comentarios" th:text="'Comentários (' + ${#lists.size(comentarios)} + ')'">Comentários</h2>
+
+    <div class="alert alert-danger" th:if="${erroComentario}" th:text="${erroComentario}"></div>
+
+    <p class="text-muted" th:if="${comentarios.empty}">Ainda não há comentários.</p>
+    <div class="card mb-2" th:each="c : ${comentarios}">
+        <div class="card-body py-2">
+            <div class="small text-muted">
+                <strong th:text="${c.autor.name}">Autor</strong> ·
+                <span th:text="${#temporals.format(c.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</span>
+            </div>
+            <div style="white-space: pre-line;" th:text="${c.conteudo}">Conteúdo</div>
+        </div>
+    </div>
+
+    <form th:if="${autenticado}" th:action="@{/denuncias/{id}/comentarios(id=${d.id})}"
+          th:object="${comentarioForm}" method="post" class="mt-3">
+        <label for="conteudo" class="form-label">Seu comentário</label>
+        <textarea id="conteudo" name="conteudo" rows="3" maxlength="1000" class="form-control" required></textarea>
+        <button type="submit" class="btn btn-primary btn-sm mt-2">Comentar</button>
+    </form>
+
+    <button th:unless="${autenticado}" type="button" class="btn btn-outline-primary btn-sm mt-3"
+            data-bs-toggle="modal" data-bs-target="#modalLogin">Entre para comentar</button>
+
+    <!-- Modal para visitantes -->
+    <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginTitulo" aria-hidden="true"
+         th:unless="${autenticado}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="modalLoginTitulo">Entre para participar</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Para curtir, incentivar ou comentar, é preciso entrar na sua conta ou criar uma.
+                    Depois você volta direto a esta publicação.
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary"
+                       th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">Entrar</a>
+                    <a class="btn btn-outline-primary"
+                       th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='cadastro')}">Criar conta</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
