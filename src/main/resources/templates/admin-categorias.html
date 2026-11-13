@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prazos por categoria - Voz Pública</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="container py-4" style="max-width: 700px;">
+    <h1 class="h4 mb-3">Prazo de referência por categoria</h1>
+
+    <div class="alert alert-success" th:if="${mensagem}" th:text="${mensagem}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+
+    <div class="alert alert-warning small">
+        Alterar o prazo muda o cálculo de atraso de <strong>todas as ocorrências abertas</strong>
+        da categoria, inclusive as já existentes.
+    </div>
+
+    <table class="table table-sm align-middle bg-white">
+        <thead><tr><th>Categoria</th><th>Prazo (dias)</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="c : ${categorias}">
+            <td th:text="${c.nome}">Categoria</td>
+            <td colspan="2">
+                <form th:action="@{/admin/categorias/{id}/prazo(id=${c.id})}" method="post"
+                      class="d-flex gap-2">
+                    <input type="number" name="prazoDias" min="1" max="365" required
+                           class="form-control form-control-sm" style="max-width: 110px;"
+                           th:value="${c.prazoReferenciaDias}">
+                    <button type="submit" class="btn btn-primary btn-sm">Salvar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

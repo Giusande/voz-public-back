@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Visão PÚBLICA: unidade e prazo. Sem nome de servidor e sem observação interna. -->
+<section th:fragment="publico">
+    <h2 class="h5 mt-4">Encaminhamento</h2>
+
+    <p class="mb-1" th:if="${enc.atual() == null}">Ainda não encaminhada a um órgão responsável.</p>
+
+    <p class="mb-1" th:if="${enc.atual() != null}">
+        Responsável atual:
+        <strong th:text="${enc.atual().unidade.nome}">Unidade</strong>
+        <span th:if="${enc.atual().unidade.pai != null}"
+              th:text="'(' + ${enc.atual().unidade.pai.nome} + ')'"></span>
+        <span class="text-muted small"
+              th:text="' · desde ' + ${#temporals.format(enc.atual().dataEncaminhamento, 'dd/MM/yyyy')}"></span>
+    </p>
+
+    <p class="mb-1">
+        Prazo de referência:
+        <strong th:text="${#temporals.format(enc.prazo().data(), 'dd/MM/yyyy')}">data</strong>
+        <span class="badge text-bg-danger" th:if="${enc.prazo().atrasada()}"
+              th:text="'Atrasada há ' + ${enc.prazo().diasAtraso()} + ' dia(s)'">Atrasada</span>
+    </p>
+
+    <ul class="list-group mt-2" th:if="${enc.historico().size() > 1}">
+        <li class="list-group-item small" th:each="e : ${enc.historico()}">
+            <span th:text="${e.unidade.nome}">Unidade</span>
+            <span class="text-muted"
+                  th:text="' · ' + ${#temporals.format(e.dataEncaminhamento, 'dd/MM/yyyy')}">data</span>
+        </li>
+    </ul>
+</section>
+
+<!-- Visão da EQUIPE: formulário e histórico completo -->
+<section th:fragment="gestao">
+    <div class="card card-body mb-4">
+        <h3 class="h6">Encaminhamento e prazo</h3>
+
+        <p class="mb-1">
+            Prazo de referência:
+            <strong th:text="${#temporals.format(enc.prazo().data(), 'dd/MM/yyyy')}">data</strong>
+            <span class="text-muted small"
+                  th:text="${enc.prazo().doEncaminhamento()} ? '(prazo específico do encaminhamento)' : '(criação + prazo da categoria)'"></span>
+            <span class="badge text-bg-danger" th:if="${enc.prazo().atrasada()}"
+                  th:text="'Atrasada há ' + ${enc.prazo().diasAtraso()} + ' dia(s)'">Atrasada</span>
+        </p>
+        <p class="mb-3" th:if="${enc.atual() != null}">
+            Atual: <strong th:text="${enc.atual().unidade.nome}">Unidade</strong>
+            <span th:if="${enc.atual().servidor != null}"
+                  th:text="' · servidor: ' + ${enc.atual().servidor.name}"></span>
+        </p>
+
+        <form th:action="@{/gestao/denuncias/{id}/encaminhar(id=${d.id})}" method="post">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label for="unidadeId" class="form-label">Unidade responsável</label>
+                    <select id="unidadeId" name="unidadeId" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        <option th:each="u : ${opcoes.unidades()}" th:value="${u.id}"
+                                th:text="${u.tipo.rotulo + ': ' + (u.pai != null ? u.pai.nome + ' › ' : '') + u.nome}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="servidorId" class="form-label">Servidor responsável (opcional)</label>
+                    <select id="servidorId" name="servidorId" class="form-select">
+                        <option value="">Nenhum</option>
+                        <option th:each="s : ${opcoes.servidores()}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="prazo" class="form-label">Prazo específico (opcional)</label>
+                    <input type="date" id="prazo" name="prazo" class="form-control">
+                    <div class="form-text">Se vazio, vale o prazo da categoria.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="obsEnc" class="form-label">Observação interna (opcional)</label>
+                    <input type="text" id="obsEnc" name="observacao" maxlength="2000" class="form-control">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Registrar encaminhamento</button>
+        </form>
+
+        <h4 class="h6 mt-4" th:if="${!enc.historico().empty}">Histórico de encaminhamentos</h4>
+        <ul class="list-group" th:if="${!enc.historico().empty}">
+            <li class="list-group-item" th:each="e : ${enc.historico()}">
+                <strong th:text="${e.unidade.nome}">Unidade</strong>
+                <span th:if="${e.servidor != null}" th:text="' · servidor: ' + ${e.servidor.name}"></span>
+                <span th:if="${e.prazoEspecifico != null}"
+                      th:text="' · prazo: ' + ${#temporals.format(e.prazoEspecifico, 'dd/MM/yyyy')}"></span>
+                <span class="text-muted small"
+                      th:text="' · ' + ${#temporals.format(e.dataEncaminhamento, 'dd/MM/yyyy HH:mm')} + ' · por ' + ${e.responsavel.name}"></span>
+                <div class="small" th:if="${e.observacao != null}" th:text="${e.observacao}">Obs</div>
+            </li>
+        </ul>
+    </div>
+</section>
+
+</body>
+</html>

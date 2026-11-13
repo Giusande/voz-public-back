@@ -21,6 +21,11 @@ public class Categoria {
 
     protected Categoria() {}
 
+    /** Package-private: só o serviço administrativo, que é protegido, altera o prazo. */
+    void alterarPrazo(int dias) {
+        this.prazoReferenciaDias = dias;
+    }
+
     public Long getId() { return id; }
     public String getNome() { return nome; }
     public int getPrazoReferenciaDias() { return prazoReferenciaDias; }

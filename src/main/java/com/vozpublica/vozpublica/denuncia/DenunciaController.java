@@ -3,6 +3,7 @@ package com.vozpublica.vozpublica.denuncia;
 import com.vozpublica.vozpublica.categoria.CategoriaRepository;
 import com.vozpublica.vozpublica.comentario.ComentarioForm;
 import com.vozpublica.vozpublica.comentario.ComentarioRepository;
+import com.vozpublica.vozpublica.encaminhamento.EncaminhamentoDetalheService;
 import com.vozpublica.vozpublica.interacao.InteracaoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class DenunciaController {
     private final DenunciaConsultaService consultaService;
     private final SimilaridadeService similaridadeService;
     private final HistoricoDetalheService detalheService;
+    private final EncaminhamentoDetalheService encaminhamentoService;
 
     public DenunciaController(DenunciaService denunciaService,
                               DenunciaRepository denunciaRepository,
@@ -44,7 +46,8 @@ public class DenunciaController {
                               ComentarioRepository comentarioRepository,
                               DenunciaConsultaService consultaService,
                               SimilaridadeService similaridadeService,
-                              HistoricoDetalheService detalheService) {
+                              HistoricoDetalheService detalheService,
+                              EncaminhamentoDetalheService encaminhamentoService) {
         this.denunciaService = denunciaService;
         this.denunciaRepository = denunciaRepository;
         this.categoriaRepository = categoriaRepository;
@@ -54,6 +57,7 @@ public class DenunciaController {
         this.consultaService = consultaService;
         this.similaridadeService = similaridadeService;
         this.detalheService = detalheService;
+        this.encaminhamentoService = encaminhamentoService;
     }
 
     @GetMapping
@@ -82,6 +86,7 @@ public class DenunciaController {
         model.addAttribute("historico", detalhes.status());
         model.addAttribute("evidencias", detalhes.evidencias());
         model.addAttribute("historicoPrioridade", detalhes.prioridades());
+        model.addAttribute("enc", encaminhamentoService.carregar(denuncia));
         model.addAttribute("fotos", fotoRepository.findByDenunciaIdOrderByIdAsc(id));
         model.addAttribute("autenticado", authentication != null);
         model.addAttribute("podeGerir", podeGerir(authentication));

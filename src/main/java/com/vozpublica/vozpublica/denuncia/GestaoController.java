@@ -1,5 +1,6 @@
 package com.vozpublica.vozpublica.denuncia;
 
+import com.vozpublica.vozpublica.encaminhamento.EncaminhamentoDetalheService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -18,13 +19,16 @@ public class GestaoController {
     private final DenunciaRepository denunciaRepository;
     private final GestaoDenunciaService gestaoService;
     private final HistoricoDetalheService detalheService;
+    private final EncaminhamentoDetalheService encaminhamentoService;
 
     public GestaoController(DenunciaRepository denunciaRepository,
                             GestaoDenunciaService gestaoService,
-                            HistoricoDetalheService detalheService) {
+                            HistoricoDetalheService detalheService,
+                            EncaminhamentoDetalheService encaminhamentoService) {
         this.denunciaRepository = denunciaRepository;
         this.gestaoService = gestaoService;
         this.detalheService = detalheService;
+        this.encaminhamentoService = encaminhamentoService;
     }
 
     @GetMapping
@@ -39,6 +43,8 @@ public class GestaoController {
         model.addAttribute("historico", detalhes.status());
         model.addAttribute("evidencias", detalhes.evidencias());
         model.addAttribute("historicoPrioridade", detalhes.prioridades());
+        model.addAttribute("enc", encaminhamentoService.carregar(d));
+        model.addAttribute("opcoes", encaminhamentoService.opcoes());
         return "gestao-denuncia";
     }
 
