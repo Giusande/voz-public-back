@@ -22,6 +22,9 @@ public interface DenunciaRepository
     @EntityGraph(attributePaths = {"categoria", "autor"})
     Optional<Denuncia> findComDetalhesById(Long id);
 
+    /** Existe e não está oculta: base das interações públicas. */
+    boolean existsByIdAndOcultaFalse(Long id);
+
     /** Listagem com filtros: carrega categoria e autor junto, evitando N+1. */
     @Override
     @EntityGraph(attributePaths = {"categoria", "autor"})
@@ -30,6 +33,7 @@ public interface DenunciaRepository
     @Query("""
             SELECT d FROM Denuncia d
             WHERE d.categoria.id = :categoriaId
+              AND d.oculta = false
               AND d.status NOT IN :encerradas
               AND (LOWER(d.bairro) = :bairro
                    OR (d.latitude BETWEEN :latMin AND :latMax

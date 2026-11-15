@@ -24,7 +24,7 @@ public class ComentarioService {
 
     @Transactional
     public Comentario adicionar(Long denunciaId, String emailAutor, String conteudo) {
-        if (!denunciaRepository.existsById(denunciaId)) {
+        if (!denunciaRepository.existsByIdAndOcultaFalse(denunciaId)) {
             throw new DenunciaNaoEncontradaException();
         }
         User autor = userRepository.findByEmail(emailAutor.trim().toLowerCase())

@@ -61,6 +61,9 @@ public class Denuncia {
     @Column(name = "data_atualizacao", nullable = false)
     private LocalDateTime dataAtualizacao = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean oculta = false;
+
     protected Denuncia() {}
 
     public Denuncia(User autor, Categoria categoria, String titulo, String descricao,
@@ -90,6 +93,10 @@ public class Denuncia {
     void aplicarPrioridadeOficial(Prioridade nova) {
         this.prioridadeOficial = nova;
     }
+
+    public boolean isOculta() { return oculta; }
+
+    public void definirOculta(boolean oculta) { this.oculta = oculta; }
 
     public Long getId() { return id; }
     public User getAutor() { return autor; }

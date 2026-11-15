@@ -1,6 +1,7 @@
 package com.vozpublica.vozpublica.administracao;
 
 import com.vozpublica.vozpublica.unidade.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +35,10 @@ public class UnidadeAdminController {
     public String criar(@RequestParam(required = false) String nome,
                         @RequestParam(required = false) TipoUnidade tipo,
                         @RequestParam(required = false) Long paiId,
+                        Authentication authentication,
                         RedirectAttributes redirect) {
         try {
-            unidadeService.criar(nome, tipo, paiId);
+            unidadeService.criar(nome, tipo, paiId, authentication.getName());
             redirect.addFlashAttribute("mensagem", "Unidade cadastrada.");
         } catch (UnidadeInvalidaException e) {
             redirect.addFlashAttribute("erro", e.getMessage());
@@ -45,9 +47,10 @@ public class UnidadeAdminController {
     }
 
     @PostMapping("/{id:\\d+}/ativa")
-    public String alternar(@PathVariable Long id, RedirectAttributes redirect) {
+    public String alternar(@PathVariable Long id, Authentication authentication,
+                           RedirectAttributes redirect) {
         try {
-            unidadeService.alternarAtiva(id);
+            unidadeService.alternarAtiva(id, authentication.getName());
             redirect.addFlashAttribute("mensagem", "Situação da unidade atualizada.");
         } catch (UnidadeInvalidaException e) {
             redirect.addFlashAttribute("erro", e.getMessage());

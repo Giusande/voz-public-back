@@ -10,11 +10,41 @@
 <main class="container py-4" style="max-width: 760px;">
     <div class="d-flex justify-content-between mb-3">
         <a th:href="@{/denuncias}" class="btn btn-outline-secondary btn-sm">&laquo; Ocorrências</a>
-        <a th:if="${podeGerir}" th:href="@{/gestao/denuncias/{id}(id=${d.id})}"
-           class="btn btn-warning btn-sm">Gerenciar (equipe)</a>
+        <div class="d-flex gap-2">
+            <a th:if="${ehAdmin}" th:href="@{/admin/moderacao}" class="btn btn-outline-danger btn-sm">Moderação</a>
+            <a th:if="${podeGerir}" th:href="@{/gestao/denuncias/{id}(id=${d.id})}"
+               class="btn btn-warning btn-sm">Gerenciar (equipe)</a>
+        </div>
     </div>
 
     <div class="alert alert-success" th:if="${mensagem}" th:text="${mensagem}"></div>
+    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+
+    <div class="alert alert-danger" th:if="${d.oculta}">
+        <strong>Publicação oculta pela moderação.</strong> Só administradores conseguem ver esta página.
+    </div>
+
+    <div class="card card-body border-danger mb-3" th:if="${ehAdmin}">
+        <h2 class="h6">Moderação (administrador)</h2>
+        <form th:if="${!d.oculta}"
+              th:action="@{/admin/moderacao/conteudo/DENUNCIA/{id}/ocultar(id=${d.id}, denunciaId=${d.id})}"
+              method="post">
+            <div class="input-group input-group-sm">
+                <input type="text" name="justificativa" maxlength="1000" required class="form-control"
+                       placeholder="Justificativa para ocultar a publicação">
+                <button type="submit" class="btn btn-outline-danger">Ocultar publicação</button>
+            </div>
+        </form>
+        <form th:if="${d.oculta}"
+              th:action="@{/admin/moderacao/conteudo/DENUNCIA/{id}/restaurar(id=${d.id}, denunciaId=${d.id})}"
+              method="post">
+            <div class="input-group input-group-sm">
+                <input type="text" name="justificativa" maxlength="1000" required class="form-control"
+                       placeholder="Justificativa para restaurar a publicação">
+                <button type="submit" class="btn btn-outline-success">Restaurar publicação</button>
+            </div>
+        </form>
+    </div>
 
     <h1 class="h3" th:text="${d.titulo}">Título</h1>
     <p>
@@ -58,10 +88,26 @@
                 data-bs-toggle="modal" data-bs-target="#modalLogin"
                 th:text="'Incentivar · ' + ${resumo.incentivos()}">Incentivar</button>
     </div>
-    <p class="form-text mb-3">
+    <p class="form-text mb-2">
         <strong>Curtir</strong> é uma reação à publicação.
         <strong>Incentivar</strong> diz que o problema também afeta você e merece atenção (só uma vez).
     </p>
+
+    <!-- Sinalizar a publicação -->
+    <details class="mb-3" th:if="${autenticado and !d.oculta}">
+        <summary class="small text-muted">Sinalizar conteúdo inadequado</summary>
+        <form th:action="@{/denuncias/{id}/sinalizar(id=${d.id})}" method="post" class="mt-2">
+            <select name="motivo" class="form-select form-select-sm mb-1" required aria-label="Motivo">
+                <option value="">Motivo...</option>
+                <option th:each="m : ${motivos}" th:value="${m}" th:text="${m.rotulo}"></option>
+            </select>
+            <input type="text" name="detalhe" maxlength="500" class="form-control form-control-sm mb-1"
+                   placeholder="Detalhes (opcional)">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Enviar sinalização</button>
+        </form>
+    </details>
+    <button th:unless="${autenticado}" type="button" class="btn btn-link btn-sm p-0 mb-3 text-muted"
+            data-bs-toggle="modal" data-bs-target="#modalLogin">Sinalizar conteúdo inadequado</button>
 
     <p class="text-muted small">
         <span th:if="${d.endereco != null}" th:text="${d.endereco} + ' · '"></span>
@@ -108,17 +154,53 @@
     <div class="alert alert-danger" th:if="${erroComentario}" th:text="${erroComentario}"></div>
 
     <p class="text-muted" th:if="${comentarios.empty}">Ainda não há comentários.</p>
-    <div class="card mb-2" th:each="c : ${comentarios}">
+    <div class="card mb-2" th:each="c : ${comentarios}" th:classappend="${c.oculto} ? 'border-danger'">
         <div class="card-body py-2">
             <div class="small text-muted">
                 <strong th:text="${c.autor.name}">Autor</strong> ·
                 <span th:text="${#temporals.format(c.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</span>
+                <span class="badge text-bg-danger" th:if="${c.oculto}">Oculto pela moderação</span>
             </div>
             <div style="white-space: pre-line;" th:text="${c.conteudo}">Conteúdo</div>
+
+            <details class="mt-1" th:if="${autenticado and !c.oculto and !d.oculta}">
+                <summary class="small text-muted">Sinalizar</summary>
+                <form th:action="@{/denuncias/{id}/comentarios/{cid}/sinalizar(id=${d.id}, cid=${c.id})}"
+                      method="post" class="mt-1">
+                    <select name="motivo" class="form-select form-select-sm mb-1" required aria-label="Motivo">
+                        <option value="">Motivo...</option>
+                        <option th:each="m : ${motivos}" th:value="${m}" th:text="${m.rotulo}"></option>
+                    </select>
+                    <input type="text" name="detalhe" maxlength="500" class="form-control form-control-sm mb-1"
+                           placeholder="Detalhes (opcional)">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Enviar sinalização</button>
+                </form>
+            </details>
+
+            <div class="mt-2" th:if="${ehAdmin}">
+                <form th:if="${!c.oculto}"
+                      th:action="@{/admin/moderacao/conteudo/COMENTARIO/{cid}/ocultar(cid=${c.id}, denunciaId=${d.id})}"
+                      method="post">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="justificativa" maxlength="1000" required class="form-control"
+                               placeholder="Justificativa para ocultar o comentário">
+                        <button type="submit" class="btn btn-outline-danger">Ocultar</button>
+                    </div>
+                </form>
+                <form th:if="${c.oculto}"
+                      th:action="@{/admin/moderacao/conteudo/COMENTARIO/{cid}/restaurar(cid=${c.id}, denunciaId=${d.id})}"
+                      method="post">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="justificativa" maxlength="1000" required class="form-control"
+                               placeholder="Justificativa para restaurar o comentário">
+                        <button type="submit" class="btn btn-outline-success">Restaurar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <form th:if="${autenticado}" th:action="@{/denuncias/{id}/comentarios(id=${d.id})}"
+    <form th:if="${autenticado and !d.oculta}" th:action="@{/denuncias/{id}/comentarios(id=${d.id})}"
           th:object="${comentarioForm}" method="post" class="mt-3">
         <label for="conteudo" class="form-label">Seu comentário</label>
         <textarea id="conteudo" name="conteudo" rows="3" maxlength="1000" class="form-control" required></textarea>
@@ -138,7 +220,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    Para curtir, incentivar ou comentar, é preciso entrar na sua conta ou criar uma.
+                    Para curtir, incentivar, comentar ou sinalizar, é preciso entrar na sua conta ou criar uma.
                     Depois você volta direto a esta publicação.
                 </div>
                 <div class="modal-footer">

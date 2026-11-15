@@ -3,6 +3,7 @@ package com.vozpublica.vozpublica.administracao;
 import com.vozpublica.vozpublica.categoria.CategoriaAdminException;
 import com.vozpublica.vozpublica.categoria.CategoriaAdminService;
 import com.vozpublica.vozpublica.categoria.CategoriaRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +31,10 @@ public class CategoriaAdminController {
     @PostMapping("/{id:\\d+}/prazo")
     public String alterarPrazo(@PathVariable Long id,
                                @RequestParam(required = false) Integer prazoDias,
+                               Authentication authentication,
                                RedirectAttributes redirect) {
         try {
-            categoriaService.alterarPrazo(id, prazoDias);
+            categoriaService.alterarPrazo(id, prazoDias, authentication.getName());
             redirect.addFlashAttribute("mensagem", "Prazo atualizado.");
         } catch (CategoriaAdminException e) {
             redirect.addFlashAttribute("erro", e.getMessage());

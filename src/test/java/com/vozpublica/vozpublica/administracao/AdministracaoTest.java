@@ -5,6 +5,10 @@ import com.vozpublica.vozpublica.categoria.CategoriaRepository;
 import com.vozpublica.vozpublica.unidade.TipoUnidade;
 import com.vozpublica.vozpublica.unidade.Unidade;
 import com.vozpublica.vozpublica.unidade.UnidadeRepository;
+import com.vozpublica.vozpublica.user.Role;
+import com.vozpublica.vozpublica.user.User;
+import com.vozpublica.vozpublica.user.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
@@ -33,7 +37,17 @@ class AdministracaoTest {
     @Autowired private WebApplicationContext context;
     @Autowired private UnidadeRepository unidadeRepository;
     @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private UserRepository userRepository;
     @PersistenceContext private EntityManager em;
+
+    @BeforeEach
+    void criarAdministradores() {
+        for (String email : new String[]{"admin@teste.com", "a@teste.com"}) {
+            if (!userRepository.existsByEmail(email)) {
+                userRepository.saveAndFlush(new User("Admin Teste", email, "hash", Role.ADMINISTRADOR));
+            }
+        }
+    }
 
     private MockMvc mvc() {
         return MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();

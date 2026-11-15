@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
+import com.vozpublica.vozpublica.security.Perfis;
+import org.springframework.security.core.Authentication;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,9 +30,13 @@ public class EvidenciaController {
     }
 
     @GetMapping("/evidencias/{id:\\d+}")
-    public ResponseEntity<Resource> ver(@PathVariable Long id) {
+    public ResponseEntity<Resource> ver(@PathVariable Long id, Authentication authentication) {
         Evidencia evidencia = evidenciaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!Perfis.ehAdministrador(authentication) && evidenciaRepository.contarVisiveis(id) == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
 
         Path arquivo;
         try {

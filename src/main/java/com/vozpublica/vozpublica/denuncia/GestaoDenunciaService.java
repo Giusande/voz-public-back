@@ -1,5 +1,7 @@
 package com.vozpublica.vozpublica.denuncia;
 
+import com.vozpublica.vozpublica.auditoria.AcaoAuditoria;
+import com.vozpublica.vozpublica.auditoria.AuditoriaService;
 import com.vozpublica.vozpublica.denuncia.ArmazenamentoFotoService.FotoProcessada;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
@@ -27,19 +29,22 @@ public class GestaoDenunciaService {
     private final EvidenciaRepository evidenciaRepository;
     private final UserRepository userRepository;
     private final ArmazenamentoFotoService armazenamento;
+    private final AuditoriaService auditoria;
 
     public GestaoDenunciaService(DenunciaGestaoRepository gestaoRepository,
                                  HistoricoStatusRepository historicoRepository,
                                  HistoricoPrioridadeRepository prioridadeRepository,
                                  EvidenciaRepository evidenciaRepository,
                                  UserRepository userRepository,
-                                 ArmazenamentoFotoService armazenamento) {
+                                 ArmazenamentoFotoService armazenamento,
+                                 AuditoriaService auditoria) {
         this.gestaoRepository = gestaoRepository;
         this.historicoRepository = historicoRepository;
         this.prioridadeRepository = prioridadeRepository;
         this.evidenciaRepository = evidenciaRepository;
         this.userRepository = userRepository;
         this.armazenamento = armazenamento;
+        this.auditoria = auditoria;
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -105,6 +110,8 @@ public class GestaoDenunciaService {
         denuncia.aplicarPrioridadeOficial(nova);
         prioridadeRepository.save(
                 new HistoricoPrioridade(denunciaId, anterior, nova, responsavel, obs));
+        auditoria.registrar(emailResponsavel, AcaoAuditoria.PRIORIDADE_OFICIAL_DEFINIDA, "DENUNCIA",
+                denunciaId, obs, (anterior == null ? "não definida" : anterior) + " → " + nova);
     }
 
     private User responsavel(String email) {

@@ -5,6 +5,9 @@ import com.vozpublica.vozpublica.comentario.ComentarioForm;
 import com.vozpublica.vozpublica.comentario.ComentarioRepository;
 import com.vozpublica.vozpublica.encaminhamento.EncaminhamentoDetalheService;
 import com.vozpublica.vozpublica.interacao.InteracaoService;
+import com.vozpublica.vozpublica.moderacao.MotivoSinalizacao;
+import com.vozpublica.vozpublica.security.Perfis;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -80,6 +83,10 @@ public class DenunciaController {
     public String detalhar(@PathVariable Long id, Authentication authentication, Model model) {
         Denuncia denuncia = denunciaRepository.findComDetalhesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        boolean admin = Perfis.ehAdministrador(authentication);
+        if (denuncia.isOculta() && !admin) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         var detalhes = detalheService.carregar(id);
 
         model.addAttribute("d", denuncia);
@@ -90,9 +97,13 @@ public class DenunciaController {
         model.addAttribute("fotos", fotoRepository.findByDenunciaIdOrderByIdAsc(id));
         model.addAttribute("autenticado", authentication != null);
         model.addAttribute("podeGerir", podeGerir(authentication));
+        model.addAttribute("ehAdmin", admin);
+        model.addAttribute("motivos", MotivoSinalizacao.values());
         model.addAttribute("resumo", interacaoService.resumo(id,
                 authentication != null ? authentication.getName() : null));
-        model.addAttribute("comentarios", comentarioRepository.findByDenunciaIdOrderByDataCriacaoAsc(id));
+        model.addAttribute("comentarios", admin
+                ? comentarioRepository.findByDenunciaIdOrderByDataCriacaoAsc(id)
+                : comentarioRepository.findByDenunciaIdAndOcultoFalseOrderByDataCriacaoAsc(id));
         model.addAttribute("comentarioForm", new ComentarioForm());
         return "denuncia-detalhe";
     }
@@ -152,7 +163,6 @@ public class DenunciaController {
         model.addAttribute("prioridades", Prioridade.values());
     }
 
-    /** Só controla se o link "Gerenciar" aparece. A permissão real é verificada no backend. */
     private static boolean podeGerir(Authentication authentication) {
         return authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SERVIDOR")

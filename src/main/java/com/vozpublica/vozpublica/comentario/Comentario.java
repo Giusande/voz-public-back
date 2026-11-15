@@ -25,6 +25,9 @@ public class Comentario {
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean oculto = false;
+
     protected Comentario() {}
 
     public Comentario(Long denunciaId, User autor, String conteudo) {
@@ -32,6 +35,11 @@ public class Comentario {
         this.autor = autor;
         this.conteudo = conteudo;
     }
+
+    public boolean isOculto() { return oculto; }
+
+    /** Uso restrito ao ModeracaoService, que é protegido por @PreAuthorize. */
+    public void definirOculto(boolean oculto) { this.oculto = oculto; }
 
     public Long getId() { return id; }
     public Long getDenunciaId() { return denunciaId; }

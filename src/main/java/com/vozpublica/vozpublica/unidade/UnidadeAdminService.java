@@ -1,5 +1,7 @@
 package com.vozpublica.vozpublica.unidade;
 
+import com.vozpublica.vozpublica.auditoria.AcaoAuditoria;
+import com.vozpublica.vozpublica.auditoria.AuditoriaService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -9,14 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class UnidadeAdminService {
 
     private final UnidadeRepository unidadeRepository;
+    private final AuditoriaService auditoria;
 
-    public UnidadeAdminService(UnidadeRepository unidadeRepository) {
+    public UnidadeAdminService(UnidadeRepository unidadeRepository, AuditoriaService auditoria) {
         this.unidadeRepository = unidadeRepository;
+        this.auditoria = auditoria;
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Transactional
-    public Unidade criar(String nome, TipoUnidade tipo, Long paiId) {
+    public Unidade criar(String nome, TipoUnidade tipo, Long paiId, String emailResponsavel) {
         if (tipo == null) {
             throw new UnidadeInvalidaException("Escolha o tipo da unidade.");
         }
@@ -48,19 +52,29 @@ public class UnidadeAdminService {
             throw new UnidadeInvalidaException("Já existe uma unidade com esse nome nesse local.");
         }
 
+        Unidade criada;
         try {
-            return unidadeRepository.saveAndFlush(new Unidade(limpo, tipo, pai));
+            criada = unidadeRepository.saveAndFlush(new Unidade(limpo, tipo, pai));
         } catch (DataIntegrityViolationException e) {
             // duas requisições simultâneas: o índice único do banco barra a segunda
             throw new UnidadeInvalidaException("Já existe uma unidade com esse nome nesse local.");
         }
+
+        auditoria.registrar(emailResponsavel, AcaoAuditoria.UNIDADE_CRIADA, "UNIDADE", criada.getId(), null,
+                tipo.getRotulo() + " \"" + limpo + "\""
+                        + (pai != null ? " (superior: " + pai.getNome() + ")" : ""));
+        return criada;
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Transactional
-    public void alternarAtiva(Long id) {
-        unidadeRepository.findById(id)
-                .orElseThrow(() -> new UnidadeInvalidaException("Unidade não encontrada."))
-                .alternarAtiva();
+    public void alternarAtiva(Long id, String emailResponsavel) {
+        Unidade unidade = unidadeRepository.findById(id)
+                .orElseThrow(() -> new UnidadeInvalidaException("Unidade não encontrada."));
+        unidade.alternarAtiva();
+        auditoria.registrar(emailResponsavel,
+                unidade.isAtiva() ? AcaoAuditoria.UNIDADE_REATIVADA : AcaoAuditoria.UNIDADE_DESATIVADA,
+                "UNIDADE", unidade.getId(), null,
+                unidade.getTipo().getRotulo() + " \"" + unidade.getNome() + "\"");
     }
 }

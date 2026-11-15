@@ -19,6 +19,7 @@ public final class DenunciaSpecs {
     public static Specification<Denuncia> de(FiltroDenuncia f) {
         return (root, query, cb) -> {
             List<Predicate> ps = new ArrayList<>();
+                ps.add(cb.isFalse(root.<Boolean>get("oculta")));
 
             if (f.getBairro() != null && !f.getBairro().isBlank()) {
                 String termo = f.getBairro().trim();

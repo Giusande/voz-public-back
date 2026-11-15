@@ -11,6 +11,9 @@
     <h1 class="h3 mb-4">Entrar no Voz Pública</h1>
 
     <div class="alert alert-success" th:if="${param.registered}">Cadastro realizado! Faça login.</div>
+    <div class="alert alert-warning" th:if="${param.encerrada}">
+        Sua sessão foi encerrada porque a conta foi alterada. Entre novamente.
+    </div>
     <div class="alert alert-danger" th:if="${param.error}">E-mail ou senha inválidos.</div>
 
     <form th:action="@{/login}" method="post">
