@@ -241,12 +241,24 @@
         ></span>
         <span th:text="${d.bairro}">Bairro</span> ·
         <span th:text="${d.regiao}">Região</span><br />
-        Publicado por <span th:text="${d.autor.name}">Autor</span> em
+        Publicado por
+        <a
+          th:if="${d.autor.perfilPublico}"
+          th:href="@{/perfil/{id}(id=${d.autor.id})}"
+          th:text="${d.autor.nomeExibicao}"
+          >Autor</a
+        >
+        <span
+          th:unless="${d.autor.perfilPublico}"
+          th:text="${d.autor.nomeExibicao}"
+          >Autor</span
+        >
+        em
         <span th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}"
           >data</span
         >
       </p>
-
+      <div th:replace="~{confirmacao-fragmento :: publico}"></div>
       <div th:replace="~{encaminhamento-fragmento :: publico}"></div>
 
       <h2 class="h5 mt-4">Histórico</h2>
@@ -334,7 +346,7 @@
       >
         <div class="card-body py-2">
           <div class="small text-muted">
-            <strong th:text="${c.autor.name}">Autor</strong> ·
+            <strong th:text="${c.autor.nomeExibicao}">Autor</strong> ·
             <span
               th:text="${#temporals.format(c.dataCriacao, 'dd/MM/yyyy HH:mm')}"
               >data</span

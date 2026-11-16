@@ -10,6 +10,8 @@ import com.vozpublica.vozpublica.denuncia.DenunciaNaoEncontradaException;
 import com.vozpublica.vozpublica.denuncia.DenunciaRepository;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
+import com.vozpublica.vozpublica.notificacao.NotificacaoService;
+import com.vozpublica.vozpublica.notificacao.TipoNotificacao;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,19 +43,22 @@ public class ModeracaoService {
     private final SinalizacaoRepository sinalizacaoRepository;
     private final UserRepository userRepository;
     private final AuditoriaService auditoria;
+    private final NotificacaoService notificacoes;
 
     public ModeracaoService(DenunciaGestaoRepository gestaoRepository,
                             DenunciaRepository denunciaRepository,
                             ComentarioRepository comentarioRepository,
                             SinalizacaoRepository sinalizacaoRepository,
                             UserRepository userRepository,
-                            AuditoriaService auditoria) {
+                            AuditoriaService auditoria,
+                            NotificacaoService notificacoes) {
         this.gestaoRepository = gestaoRepository;
         this.denunciaRepository = denunciaRepository;
         this.comentarioRepository = comentarioRepository;
         this.sinalizacaoRepository = sinalizacaoRepository;
         this.userRepository = userRepository;
         this.auditoria = auditoria;
+        this.notificacoes = notificacoes;
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
@@ -115,7 +120,7 @@ public class ModeracaoService {
     public void restaurar(TipoConteudo tipo, Long alvoId, String justificativa, String email) {
         exigirTipo(tipo);
         String motivo = justificativaObrigatoria(justificativa);
-        admin(email);
+        User admin = admin(email);
 
         String detalhes;
         if (tipo == TipoConteudo.DENUNCIA) {
@@ -126,6 +131,9 @@ public class ModeracaoService {
             }
             d.definirOculta(false);
             detalhes = "Publicação #" + alvoId + " restaurada";
+            notificacoes.notificar(d.getAutor().getId(), admin.getId(), TipoNotificacao.MODERACAO,
+                    "Sua publicação “" + NotificacaoService.trecho(d.getTitulo())
+                            + "” foi restaurada pela moderação.", alvoId);
         } else {
             Comentario c = comentarioRepository.buscarParaAtualizar(alvoId)
                     .orElseThrow(() -> new ModeracaoException("Comentário não encontrado."));
@@ -134,6 +142,7 @@ public class ModeracaoService {
             }
             c.definirOculto(false);
             detalhes = "Comentário #" + alvoId + " (publicação #" + c.getDenunciaId() + ") restaurado";
+            notificarComentario(c, admin, "foi restaurado pela moderação.");
         }
         auditoria.registrar(email, AcaoAuditoria.CONTEUDO_RESTAURADO, tipo.name(), alvoId, motivo, detalhes);
     }
@@ -163,6 +172,9 @@ public class ModeracaoService {
             }
             d.definirOculta(true);
             detalhes = "Publicação #" + alvoId + " ocultada";
+            notificacoes.notificar(d.getAutor().getId(), admin.getId(), TipoNotificacao.MODERACAO,
+                    "Sua publicação “" + NotificacaoService.trecho(d.getTitulo())
+                            + "” foi ocultada pela moderação. Motivo: " + motivo, alvoId);
         } else {
             Comentario c = comentarioRepository.buscarParaAtualizar(alvoId)
                     .orElseThrow(() -> new ModeracaoException("Comentário não encontrado."));
@@ -171,6 +183,7 @@ public class ModeracaoService {
             }
             c.definirOculto(true);
             detalhes = "Comentário #" + alvoId + " (publicação #" + c.getDenunciaId() + ") ocultado";
+            notificarComentario(c, admin, "foi ocultado pela moderação. Motivo: " + motivo);
         }
 
         // Grava a ocultação e encerra todas as sinalizações abertas deste conteúdo
@@ -178,6 +191,13 @@ public class ModeracaoService {
                 LocalDateTime.now(), motivo, tipo, alvoId, StatusSinalizacao.ABERTA);
 
         auditoria.registrar(email, AcaoAuditoria.CONTEUDO_OCULTADO, tipo.name(), alvoId, motivo, detalhes);
+    }
+
+    private void notificarComentario(Comentario c, User admin, String complemento) {
+        String titulo = denunciaRepository.findById(c.getDenunciaId()).map(Denuncia::getTitulo).orElse("");
+        notificacoes.notificar(c.getAutor().getId(), admin.getId(), TipoNotificacao.MODERACAO,
+                "Seu comentário na ocorrência “" + NotificacaoService.trecho(titulo) + "” " + complemento,
+                c.getDenunciaId());
     }
 
     private User admin(String email) {

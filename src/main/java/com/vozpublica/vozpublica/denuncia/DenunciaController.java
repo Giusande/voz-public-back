@@ -7,6 +7,8 @@ import com.vozpublica.vozpublica.encaminhamento.EncaminhamentoDetalheService;
 import com.vozpublica.vozpublica.interacao.InteracaoService;
 import com.vozpublica.vozpublica.moderacao.MotivoSinalizacao;
 import com.vozpublica.vozpublica.security.Perfis;
+import com.vozpublica.vozpublica.confirmacao.ConfirmacaoService;
+import com.vozpublica.vozpublica.confirmacao.TipoConfirmacao;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,7 @@ public class DenunciaController {
     private final SimilaridadeService similaridadeService;
     private final HistoricoDetalheService detalheService;
     private final EncaminhamentoDetalheService encaminhamentoService;
+    private final ConfirmacaoService confirmacaoService;
 
     public DenunciaController(DenunciaService denunciaService,
                               DenunciaRepository denunciaRepository,
@@ -50,7 +53,8 @@ public class DenunciaController {
                               DenunciaConsultaService consultaService,
                               SimilaridadeService similaridadeService,
                               HistoricoDetalheService detalheService,
-                              EncaminhamentoDetalheService encaminhamentoService) {
+                              EncaminhamentoDetalheService encaminhamentoService,
+                              ConfirmacaoService confirmacaoService) {
         this.denunciaService = denunciaService;
         this.denunciaRepository = denunciaRepository;
         this.categoriaRepository = categoriaRepository;
@@ -61,6 +65,7 @@ public class DenunciaController {
         this.similaridadeService = similaridadeService;
         this.detalheService = detalheService;
         this.encaminhamentoService = encaminhamentoService;
+        this.confirmacaoService = confirmacaoService;
     }
 
     @GetMapping
@@ -115,6 +120,9 @@ public class DenunciaController {
                 ? comentarioRepository.findByDenunciaIdOrderByDataCriacaoAsc(id)
                 : comentarioRepository.findByDenunciaIdAndOcultoFalseOrderByDataCriacaoAsc(id));
         model.addAttribute("comentarioForm", new ComentarioForm());
+                model.addAttribute("confirmacoes", confirmacaoService.resumo(id,
+                authentication != null ? authentication.getName() : null));
+        model.addAttribute("tiposConfirmacao", TipoConfirmacao.values());
         return "denuncia-detalhe";
     }
 

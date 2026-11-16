@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <!-- Visão PÚBLICA: relatos dos moradores -->
+    <div th:fragment="publico">
+      <section id="confirmacao" th:if="${!agrupada and !d.oculta}">
+        <h2 class="h5 mt-4">Confirmação da comunidade</h2>
+        <p class="small text-muted mb-2">
+          Relatos de moradores. Eles ajudam a equipe, mas
+          <strong>não alteram a situação oficial</strong>
+          da ocorrência.
+        </p>
+        <ul class="small mb-2">
+          <li
+            th:each="t : ${tiposConfirmacao}"
+            th:text="${t.rotulo} + ': ' + ${confirmacoes.de(t)}"
+          >
+            tipo
+          </li>
+        </ul>
+
+        <div th:if="${autenticado}" class="d-flex flex-wrap gap-2">
+          <form
+            th:each="t : ${tiposConfirmacao}"
+            th:action="@{/denuncias/{id}/confirmar(id=${d.id})}"
+            method="post"
+          >
+            <input type="hidden" name="tipo" th:value="${t}" />
+            <button
+              type="submit"
+              class="btn btn-sm"
+              th:classappend="${confirmacoes.meuVoto() == t} ? 'btn-primary' : 'btn-outline-primary'"
+              th:text="${t.rotulo}"
+            >
+              Opção
+            </button>
+          </form>
+          <form
+            th:if="${confirmacoes.meuVoto() != null}"
+            th:action="@{/denuncias/{id}/confirmar/remover(id=${d.id})}"
+            method="post"
+          >
+            <button type="submit" class="btn btn-link btn-sm">
+              Retirar meu relato
+            </button>
+          </form>
+        </div>
+
+        <div th:unless="${autenticado}" class="d-flex flex-wrap gap-2">
+          <button
+            th:each="t : ${tiposConfirmacao}"
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#modalLogin"
+            th:text="${t.rotulo}"
+          >
+            Opção
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Visão da EQUIPE -->
+    <div th:fragment="gestao">
+      <div
+        class="card card-body mb-4"
+        th:classappend="${divergente} ? 'border-danger'"
+      >
+        <h3 class="h6">Confirmação da comunidade</h3>
+        <div class="alert alert-danger py-2 small" th:if="${divergente}">
+          <strong>Reavaliação sugerida:</strong> depois da última resolução,
+          vários moradores relatam que o problema continua presente. A situação
+          oficial só muda por decisão da equipe.
+        </div>
+        <ul class="small mb-0">
+          <li
+            th:each="t : ${T(com.vozpublica.vozpublica.confirmacao.TipoConfirmacao).values()}"
+            th:text="${t.rotulo} + ': ' + ${confirmacoes.de(t)}"
+          >
+            tipo
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

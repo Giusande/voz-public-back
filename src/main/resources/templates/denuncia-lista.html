@@ -108,7 +108,7 @@
             <p class="card-text small text-muted mb-0">
                 <span th:text="${d.bairro}">Bairro</span> ·
                 <span th:text="${d.regiao}">Região</span><br>
-                por <span th:text="${d.autor.name}">Autor</span> ·
+                por <span th:text="${d.autor.nomeExibicao}">Autor</span> ·
                 <span th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</span>
             </p>
         </div>

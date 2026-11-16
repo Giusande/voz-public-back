@@ -9,6 +9,8 @@ import com.vozpublica.vozpublica.unidade.UnidadeRepository;
 import com.vozpublica.vozpublica.user.Role;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
+import com.vozpublica.vozpublica.notificacao.NotificacaoService;
+import com.vozpublica.vozpublica.notificacao.TipoNotificacao;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,15 +29,18 @@ public class EncaminhamentoService {
     private final EncaminhamentoRepository encaminhamentoRepository;
     private final UnidadeRepository unidadeRepository;
     private final UserRepository userRepository;
+    private final NotificacaoService notificacoes;
 
     public EncaminhamentoService(DenunciaGestaoRepository gestaoRepository,
                                  EncaminhamentoRepository encaminhamentoRepository,
                                  UnidadeRepository unidadeRepository,
-                                 UserRepository userRepository) {
+                                 UserRepository userRepository,
+                                 NotificacaoService notificacoes) {
         this.gestaoRepository = gestaoRepository;
         this.encaminhamentoRepository = encaminhamentoRepository;
         this.unidadeRepository = unidadeRepository;
         this.userRepository = userRepository;
+        this.notificacoes = notificacoes;
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -89,6 +94,10 @@ public class EncaminhamentoService {
 
         encaminhamentoRepository.save(
                 new Encaminhamento(denunciaId, unidade, servidor, prazoEspecifico, obs, responsavel));
+
+        notificacoes.notificar(denuncia.getAutor().getId(), responsavel.getId(), TipoNotificacao.ADMINISTRATIVA,
+                "Sua ocorrência “" + NotificacaoService.trecho(denuncia.getTitulo())
+                        + "” foi encaminhada à unidade " + unidade.getNome() + ".", denunciaId);
     }
 
     private static boolean igual(Encaminhamento a, Unidade unidade, User servidor, LocalDate prazo) {

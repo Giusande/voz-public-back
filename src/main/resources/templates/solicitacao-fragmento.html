@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div th:fragment="gestao">
+      <div class="card card-body mb-4">
+        <h3 class="h6">Informações adicionais do autor</h3>
+
+        <p class="small text-muted mb-2" th:if="${solicitacoes.empty}">
+          Nenhuma solicitação feita.
+        </p>
+        <ul class="list-group mb-3" th:if="${!solicitacoes.empty}">
+          <li class="list-group-item small" th:each="s : ${solicitacoes}">
+            <div>
+              <strong>Pedido</strong>
+              <span
+                class="text-muted"
+                th:text="${#temporals.format(s.dataSolicitacao, 'dd/MM/yyyy HH:mm')} + ' · por ' + ${s.solicitante.name}"
+              ></span>
+            </div>
+            <div style="white-space: pre-line" th:text="${s.mensagem}">
+              mensagem
+            </div>
+            <div class="mt-1" th:if="${s.aberta}">
+              <span class="badge text-bg-warning">Aguardando resposta</span>
+            </div>
+            <div class="mt-1" th:if="${!s.aberta}">
+              <strong>Resposta</strong>
+              <span
+                class="text-muted"
+                th:text="${#temporals.format(s.dataResposta, 'dd/MM/yyyy HH:mm')}"
+              ></span>
+              <div style="white-space: pre-line" th:text="${s.resposta}">
+                resposta
+              </div>
+            </div>
+          </li>
+        </ul>
+
+        <form
+          th:if="${!agrupada and (solicitacoes.empty or !solicitacoes.get(0).aberta)}"
+          th:action="@{/gestao/denuncias/{id}/solicitar-info(id=${d.id})}"
+          method="post"
+        >
+          <label for="mensagemInfo" class="form-label small mb-1"
+            >Pedir informações ao autor</label
+          >
+          <textarea
+            id="mensagemInfo"
+            name="mensagem"
+            rows="3"
+            maxlength="1000"
+            required
+            class="form-control form-control-sm mb-1"
+          ></textarea>
+          <div class="form-text mb-2">
+            O pedido e a resposta são vistos só pelo autor e pela equipe. Não
+            peça dados desnecessários.
+          </div>
+          <button type="submit" class="btn btn-outline-primary btn-sm">
+            Enviar pedido
+          </button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

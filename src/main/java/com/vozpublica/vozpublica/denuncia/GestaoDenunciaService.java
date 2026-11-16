@@ -5,6 +5,8 @@ import com.vozpublica.vozpublica.auditoria.AuditoriaService;
 import com.vozpublica.vozpublica.denuncia.ArmazenamentoFotoService.FotoProcessada;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
+import com.vozpublica.vozpublica.notificacao.NotificacaoService;
+import com.vozpublica.vozpublica.notificacao.TipoNotificacao;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ public class GestaoDenunciaService {
     private final UserRepository userRepository;
     private final ArmazenamentoFotoService armazenamento;
     private final AuditoriaService auditoria;
+    private final NotificacaoService notificacoes;
 
     public GestaoDenunciaService(DenunciaGestaoRepository gestaoRepository,
                                  HistoricoStatusRepository historicoRepository,
@@ -37,7 +40,8 @@ public class GestaoDenunciaService {
                                  EvidenciaRepository evidenciaRepository,
                                  UserRepository userRepository,
                                  ArmazenamentoFotoService armazenamento,
-                                 AuditoriaService auditoria) {
+                                 AuditoriaService auditoria,
+                                 NotificacaoService notificacoes) {
         this.gestaoRepository = gestaoRepository;
         this.historicoRepository = historicoRepository;
         this.prioridadeRepository = prioridadeRepository;
@@ -45,6 +49,7 @@ public class GestaoDenunciaService {
         this.userRepository = userRepository;
         this.armazenamento = armazenamento;
         this.auditoria = auditoria;
+        this.notificacoes = notificacoes;
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -92,6 +97,16 @@ public class GestaoDenunciaService {
             apagarSeTransacaoFalhar(nome);
             evidenciaRepository.save(new Evidencia(registro.getId(), nome));
         }
+
+        String titulo = NotificacaoService.trecho(denuncia.getTitulo());
+        if (novoStatus == StatusDenuncia.REABERTA) {
+            notificacoes.notificar(denuncia.getAutor().getId(), responsavel.getId(), TipoNotificacao.REABERTURA,
+                    "Sua ocorrência “" + titulo + "” foi reaberta.", denunciaId);
+        } else {
+            notificacoes.notificar(denuncia.getAutor().getId(), responsavel.getId(), TipoNotificacao.SITUACAO,
+                    "A situação da sua ocorrência “" + titulo + "” mudou para " + novoStatus.getRotulo() + ".",
+                    denunciaId);
+        }
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -122,6 +137,10 @@ public class GestaoDenunciaService {
                 new HistoricoPrioridade(denunciaId, anterior, nova, responsavel, obs));
         auditoria.registrar(emailResponsavel, AcaoAuditoria.PRIORIDADE_OFICIAL_DEFINIDA, "DENUNCIA",
                 denunciaId, obs, (anterior == null ? "não definida" : anterior) + " → " + nova);
+
+        notificacoes.notificar(denuncia.getAutor().getId(), responsavel.getId(), TipoNotificacao.ADMINISTRATIVA,
+                "A prioridade oficial da sua ocorrência “" + NotificacaoService.trecho(denuncia.getTitulo())
+                        + "” foi definida como " + nova + ".", denunciaId);
     }
 
     private User responsavel(String email) {

@@ -19,6 +19,31 @@
           <a th:href="@{/denuncias/nova}" class="btn btn-sm btn-outline-primary"
             >Registrar ocorrência</a
           >
+          <a
+            th:if="${navLogado}"
+            th:href="@{/minhas-denuncias}"
+            class="btn btn-sm btn-outline-secondary"
+            >Minhas denúncias</a
+          >
+          <a
+            th:if="${navLogado}"
+            th:href="@{/notificacoes}"
+            class="btn btn-sm btn-outline-secondary"
+            >Notificações
+            <span
+              th:if="${navNaoLidas.total > 0}"
+              id="nav-nao-lidas"
+              class="badge text-bg-danger"
+              th:text="${navNaoLidas.total}"
+              >0</span
+            ></a
+          >
+          <a
+            th:if="${navLogado}"
+            th:href="@{/perfil}"
+            class="btn btn-sm btn-outline-secondary"
+            >Meu perfil</a
+          >
 
           <span class="vr mx-1 d-none d-md-block" th:if="${navEquipe}"></span>
           <a
@@ -38,6 +63,12 @@
             th:href="@{/gestao/atrasadas}"
             class="btn btn-sm btn-outline-secondary"
             >Atrasadas</a
+          >
+          <a
+            th:if="${navEquipe}"
+            th:href="@{/gestao/reavaliacao}"
+            class="btn btn-sm btn-outline-secondary"
+            >Reavaliação</a
           >
 
           <span class="vr mx-1 d-none d-md-block" th:if="${navAdmin}"></span>

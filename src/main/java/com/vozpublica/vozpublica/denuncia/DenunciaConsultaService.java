@@ -46,7 +46,12 @@ public class DenunciaConsultaService {
     public Resultado buscar(FiltroDenuncia filtro, int pagina) {
         Page<Denuncia> page = denunciaRepository.findAll(
                 DenunciaSpecs.de(filtro), PageRequest.of(Math.max(pagina, 0), TAMANHO_PAGINA));
+        return complementar(page);
+    }
 
+    /** Contadores e primeira foto de cada ocorrência da página, sem N+1. */
+    @Transactional(readOnly = true)
+    public Resultado complementar(Page<Denuncia> page) {
         List<Long> ids = page.getContent().stream().map(Denuncia::getId).toList();
         Map<Long, Contadores> contadores = new HashMap<>();
         Map<Long, Long> fotos = new HashMap<>();

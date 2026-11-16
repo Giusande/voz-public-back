@@ -1,6 +1,9 @@
 package com.vozpublica.vozpublica.denuncia;
 
+import com.vozpublica.vozpublica.confirmacao.ConfirmacaoService;
+import com.vozpublica.vozpublica.confirmacao.ReavaliacaoService;
 import com.vozpublica.vozpublica.encaminhamento.EncaminhamentoDetalheService;
+import com.vozpublica.vozpublica.solicitacao.SolicitacaoInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,17 +24,26 @@ public class GestaoController {
     private final HistoricoDetalheService detalheService;
     private final EncaminhamentoDetalheService encaminhamentoService;
     private final AgrupamentoRepository agrupamentoRepository;
+    private final SolicitacaoInfoService solicitacaoService;
+    private final ConfirmacaoService confirmacaoService;
+    private final ReavaliacaoService reavaliacaoService;
 
     public GestaoController(DenunciaRepository denunciaRepository,
                             GestaoDenunciaService gestaoService,
                             HistoricoDetalheService detalheService,
                             EncaminhamentoDetalheService encaminhamentoService,
-                            AgrupamentoRepository agrupamentoRepository) {
+                            AgrupamentoRepository agrupamentoRepository,
+                            SolicitacaoInfoService solicitacaoService,
+                            ConfirmacaoService confirmacaoService,
+                            ReavaliacaoService reavaliacaoService) {
         this.denunciaRepository = denunciaRepository;
         this.gestaoService = gestaoService;
         this.detalheService = detalheService;
         this.encaminhamentoService = encaminhamentoService;
         this.agrupamentoRepository = agrupamentoRepository;
+        this.solicitacaoService = solicitacaoService;
+        this.confirmacaoService = confirmacaoService;
+        this.reavaliacaoService = reavaliacaoService;
     }
 
     @GetMapping
@@ -55,6 +67,10 @@ public class GestaoController {
                 ? null : denunciaRepository.findComDetalhesById(principalId).orElse(null));
         model.addAttribute("filhas", denunciaRepository.findByDuplicadaDeIdOrderByIdAsc(id));
         model.addAttribute("historicoAgrupamento", agrupamentoRepository.historicoDe(id));
+
+        model.addAttribute("solicitacoes", solicitacaoService.doPainel(id));
+        model.addAttribute("confirmacoes", confirmacaoService.resumo(id, null));
+        model.addAttribute("divergente", reavaliacaoService.divergente(id));
         return "gestao-denuncia";
     }
 

@@ -30,6 +30,18 @@ public class User {
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "nome_publico", length = 60)
+    private String nomePublico;
+
+    @Column(name = "perfil_publico", nullable = false)
+    private boolean perfilPublico = true;
+
+    @Column(name = "exibir_data_cadastro", nullable = false)
+    private boolean exibirDataCadastro = false;
+
+    @Column(name = "exibir_apoios", nullable = false)
+    private boolean exibirApoios = false;
+
     protected User() {} // exigido pelo JPA
 
     public User(String name, String email, String passwordHash, Role role) {
@@ -47,6 +59,20 @@ public class User {
         this.enabled = ativo;
     }
 
+    /** Package-private: só o PerfilService altera a privacidade, e sempre da própria conta. */
+    void atualizarPrivacidade(String nomePublico, boolean perfilPublico,
+                              boolean exibirDataCadastro, boolean exibirApoios) {
+        this.nomePublico = nomePublico;
+        this.perfilPublico = perfilPublico;
+        this.exibirDataCadastro = exibirDataCadastro;
+        this.exibirApoios = exibirApoios;
+    }
+
+    /** Nome mostrado publicamente: o nome público, se houver; senão o nome completo. */
+    public String getNomeExibicao() {
+        return nomePublico == null || nomePublico.isBlank() ? name : nomePublico;
+    }
+
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }
@@ -54,4 +80,8 @@ public class User {
     public Role getRole() { return role; }
     public boolean isEnabled() { return enabled; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public String getNomePublico() { return nomePublico; }
+    public boolean isPerfilPublico() { return perfilPublico; }
+    public boolean isExibirDataCadastro() { return exibirDataCadastro; }
+    public boolean isExibirApoios() { return exibirApoios; }
 }

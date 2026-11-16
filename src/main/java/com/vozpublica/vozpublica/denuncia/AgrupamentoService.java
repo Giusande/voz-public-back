@@ -4,6 +4,8 @@ import com.vozpublica.vozpublica.auditoria.AcaoAuditoria;
 import com.vozpublica.vozpublica.auditoria.AuditoriaService;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
+import com.vozpublica.vozpublica.notificacao.NotificacaoService;
+import com.vozpublica.vozpublica.notificacao.TipoNotificacao;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,17 +20,20 @@ public class AgrupamentoService {
     private final AgrupamentoRepository agrupamentoRepository;
     private final UserRepository userRepository;
     private final AuditoriaService auditoria;
+    private final NotificacaoService notificacoes;
 
     public AgrupamentoService(DenunciaGestaoRepository gestaoRepository,
                               DenunciaRepository denunciaRepository,
                               AgrupamentoRepository agrupamentoRepository,
                               UserRepository userRepository,
-                              AuditoriaService auditoria) {
+                              AuditoriaService auditoria,
+                              NotificacaoService notificacoes) {
         this.gestaoRepository = gestaoRepository;
         this.denunciaRepository = denunciaRepository;
         this.agrupamentoRepository = agrupamentoRepository;
         this.userRepository = userRepository;
         this.auditoria = auditoria;
+        this.notificacoes = notificacoes;
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -79,6 +84,10 @@ public class AgrupamentoService {
                 new Agrupamento(filhaId, principalId, TipoAgrupamento.AGRUPADA, responsavel, motivo));
         auditoria.registrar(email, AcaoAuditoria.DUPLICIDADE_AGRUPADA, "DENUNCIA", filhaId, motivo,
                 "Ocorrência #" + filhaId + " agrupada à #" + principalId);
+        notificacoes.notificar(filha.getAutor().getId(), responsavel.getId(), TipoNotificacao.AGRUPAMENTO,
+                "Sua ocorrência “" + NotificacaoService.trecho(filha.getTitulo()) + "” foi agrupada à #"
+                        + principalId + ", que trata do mesmo problema. Os apoios foram somados e o "
+                        + "acompanhamento passa a ser pela principal.", filhaId);
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")
@@ -99,6 +108,9 @@ public class AgrupamentoService {
                 new Agrupamento(filhaId, principalId, TipoAgrupamento.DESAGRUPADA, responsavel, motivo));
         auditoria.registrar(email, AcaoAuditoria.DUPLICIDADE_DESAGRUPADA, "DENUNCIA", filhaId, motivo,
                 "Ocorrência #" + filhaId + " desagrupada da #" + principalId);
+        notificacoes.notificar(filha.getAutor().getId(), responsavel.getId(), TipoNotificacao.AGRUPAMENTO,
+                "Sua ocorrência “" + NotificacaoService.trecho(filha.getTitulo())
+                        + "” foi desagrupada e voltou a ser acompanhada separadamente.", filhaId);
     }
 
     private User responsavel(String email) {
