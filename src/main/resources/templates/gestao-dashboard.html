@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard - Voz Pública</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div th:replace="~{menu-fragmento :: menu}"></div>
+    <main class="container py-4" style="max-width: 1100px">
+      <nav class="mb-3 d-flex flex-wrap gap-2">
+        <a th:href="@{/gestao/dashboard}" class="btn btn-secondary btn-sm"
+          >Dashboard</a
+        >
+        <a
+          th:href="@{/gestao/relatorios}"
+          class="btn btn-outline-secondary btn-sm"
+          >Relatórios</a
+        >
+        <a
+          th:href="@{/gestao/atrasadas}"
+          class="btn btn-outline-secondary btn-sm"
+          >Atrasadas</a
+        >
+        <a th:href="@{/denuncias}" class="btn btn-outline-secondary btn-sm"
+          >Ocorrências</a
+        >
+      </nav>
+
+      <h1 class="h4 mb-3">Dashboard de gestão</h1>
+
+      <div
+        th:replace="~{relatorio-filtro-fragmento :: filtro('/gestao/dashboard', false)}"
+      ></div>
+
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().total()}">0</div>
+            <div class="small text-muted">Total</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().pendentes()}">0</div>
+            <div class="small text-muted">Pendentes</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().emAnalise()}">0</div>
+            <div class="small text-muted">Em análise</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().encaminhadas()}">
+              0
+            </div>
+            <div class="small text-muted">Encaminhadas</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().emExecucao()}">
+              0
+            </div>
+            <div class="small text-muted">Em execução</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().resolvidas()}">
+              0
+            </div>
+            <div class="small text-muted">Resolvidas</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center border-danger">
+            <div
+              class="h3 mb-0 text-danger"
+              th:text="${painel.geral().atrasadas()}"
+            >
+              0
+            </div>
+            <div class="small text-muted">Atrasadas</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().tempoMedioTexto()}">
+              —
+            </div>
+            <div class="small text-muted">Tempo médio (dias)</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div
+              class="h3 mb-0"
+              th:text="${painel.geral().percentualTexto()} + '%'"
+            >
+              0%
+            </div>
+            <div class="small text-muted">% de resolução</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card card-body text-center">
+            <div class="h3 mb-0" th:text="${painel.geral().indeferidas()}">
+              0
+            </div>
+            <div class="small text-muted">Indeferidas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <h2 class="h6">Bairros com mais ocorrências</h2>
+          <p class="text-muted small" th:if="${painel.bairros().empty}">
+            Sem dados.
+          </p>
+          <div class="mb-2" th:each="l : ${painel.bairros()}">
+            <div class="d-flex justify-content-between small">
+              <span th:text="${l.grupo()}">Bairro</span>
+              <span
+                th:text="${l.indicadores().total()} + ' (' + ${l.indicadores().atrasadas()} + ' atrasadas)'"
+                >n</span
+              >
+            </div>
+            <div class="progress" style="height: 6px">
+              <div
+                class="progress-bar"
+                th:style="'width: ' + ${l.participacao(painel.geral().total())} + '%'"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h6">Categorias mais frequentes</h2>
+          <p class="text-muted small" th:if="${painel.categorias().empty}">
+            Sem dados.
+          </p>
+          <div class="mb-2" th:each="l : ${painel.categorias()}">
+            <div class="d-flex justify-content-between small">
+              <span th:text="${l.grupo()}">Categoria</span>
+              <span th:text="${l.indicadores().total()}">n</span>
+            </div>
+            <div class="progress" style="height: 6px">
+              <div
+                class="progress-bar bg-success"
+                th:style="'width: ' + ${l.participacao(painel.geral().total())} + '%'"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h6">Evolução por mês (últimos 12)</h2>
+          <p class="text-muted small" th:if="${painel.meses().empty}">
+            Sem dados.
+          </p>
+          <table
+            class="table table-sm small bg-white"
+            th:if="${!painel.meses().empty}"
+          >
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Registradas</th>
+                <th>Resolvidas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="l : ${painel.meses()}">
+                <td th:text="${l.grupo()}">2026-01</td>
+                <td th:text="${l.indicadores().total()}">0</td>
+                <td th:text="${l.indicadores().resolvidas()}">0</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-muted small">
+            "Resolvidas" são as ocorrências registradas naquele mês que hoje
+            estão resolvidas.
+          </p>
+        </div>
+      </div>
+
+      <details class="mt-4">
+        <summary class="small">Como cada indicador é calculado</summary>
+        <ul class="small mt-2">
+          <li>
+            <strong>Universo:</strong> ocorrências não ocultas e não duplicadas,
+            dentro dos filtros.
+          </li>
+          <li><strong>Pendentes:</strong> situação RECEBIDA ou REABERTA.</li>
+          <li>
+            <strong>Atrasadas:</strong> fora de RESOLVIDA e INDEFERIDA, com hoje
+            depois do prazo de referência (prazo específico do encaminhamento
+            atual ou criação + prazo da categoria).
+          </li>
+          <li>
+            <strong>Tempo médio:</strong> média, em dias, da criação até a
+            última mudança para RESOLVIDA, das ocorrências hoje resolvidas.
+          </li>
+          <li><strong>% de resolução:</strong> resolvidas ÷ total.</li>
+          <li>
+            <strong>Órgão responsável:</strong> o filtro inclui a unidade
+            escolhida e as que estão abaixo dela.
+          </li>
+        </ul>
+      </details>
+    </main>
+  </body>
+</html>

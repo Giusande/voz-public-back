@@ -64,6 +64,9 @@ public class Denuncia {
     @Column(nullable = false)
     private boolean oculta = false;
 
+    @Column(name = "duplicada_de_id")
+    private Long duplicadaDeId;
+
     protected Denuncia() {}
 
     public Denuncia(User autor, Categoria categoria, String titulo, String descricao,
@@ -97,6 +100,12 @@ public class Denuncia {
     public boolean isOculta() { return oculta; }
 
     public void definirOculta(boolean oculta) { this.oculta = oculta; }
+
+    public Long getDuplicadaDeId() { return duplicadaDeId; }
+
+    public boolean isAgrupada() { return duplicadaDeId != null; }
+
+    void definirDuplicadaDe(Long principalId) { this.duplicadaDeId = principalId; }
 
     public Long getId() { return id; }
     public User getAutor() { return autor; }

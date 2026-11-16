@@ -11,7 +11,10 @@ public enum AcaoAuditoria {
     USUARIO_REATIVADO("Usuário reativado"),
     CONTEUDO_OCULTADO("Conteúdo ocultado"),
     CONTEUDO_RESTAURADO("Conteúdo restaurado"),
-    SINALIZACAO_DESCARTADA("Sinalização descartada");
+    SINALIZACAO_DESCARTADA("Sinalização descartada"),
+    DUPLICIDADE_AGRUPADA("Duplicidade agrupada"),
+    DUPLICIDADE_DESAGRUPADA("Duplicidade desagrupada"),
+    RELATORIO_EXPORTADO("Relatório exportado");
 
     private final String rotulo;
 

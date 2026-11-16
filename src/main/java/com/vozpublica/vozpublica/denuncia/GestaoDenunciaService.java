@@ -71,6 +71,11 @@ public class GestaoDenunciaService {
         // bloqueia a linha: a validação abaixo vale contra o status mais recente
         Denuncia denuncia = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
+        
+        if (denuncia.isAgrupada()) {
+            throw new GestaoInvalidaException("Esta ocorrência está agrupada à #"
+                    + denuncia.getDuplicadaDeId() + ". Gerencie a principal ou desagrupe antes.");
+        }
 
         StatusDenuncia atual = denuncia.getStatus();
         if (!atual.podeIrPara(novoStatus)) {
@@ -101,6 +106,11 @@ public class GestaoDenunciaService {
 
         Denuncia denuncia = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
+
+        if (denuncia.isAgrupada()) {
+            throw new GestaoInvalidaException("Esta ocorrência está agrupada à #"
+                    + denuncia.getDuplicadaDeId() + ". Gerencie a principal ou desagrupe antes.");
+        }
 
         Prioridade anterior = denuncia.getPrioridadeOficial();
         if (anterior == nova) {

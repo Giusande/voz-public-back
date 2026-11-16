@@ -32,6 +32,16 @@ public class FiltroDenuncia {
 
     private Ordem ordem = Ordem.RECENTES;
 
+        /** Há algum filtro além da ordenação padrão? (o bloco de filtros abre sozinho nesse caso) */
+    public boolean temFiltros() {
+        return !vazio(bairro) || !vazio(regiao) || categoriaId != null || prioridade != null
+                || status != null || de != null || ate != null || ordem != Ordem.RECENTES;
+    }
+
+    private static boolean vazio(String s) {
+        return s == null || s.isBlank();
+    }
+
     /** Monta a query string (já codificada) para os links de paginação, mantendo os filtros. */
     public String queryString(int pagina) {
         StringBuilder sb = new StringBuilder("pagina=").append(Math.max(pagina, 0));

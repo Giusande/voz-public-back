@@ -70,6 +70,11 @@ public class EncaminhamentoService {
         // bloqueia a linha: a validação abaixo vale contra o estado mais recente
         var denuncia = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
+        
+        if (denuncia.isAgrupada()) {
+            throw new GestaoInvalidaException("Esta ocorrência está agrupada à #"
+                    + denuncia.getDuplicadaDeId() + ". Gerencie a principal ou desagrupe antes.");
+        }
 
         StatusDenuncia status = denuncia.getStatus();
         if (status == StatusDenuncia.RESOLVIDA || status == StatusDenuncia.INDEFERIDA) {

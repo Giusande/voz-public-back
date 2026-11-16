@@ -22,8 +22,19 @@ public interface DenunciaRepository
     @EntityGraph(attributePaths = {"categoria", "autor"})
     Optional<Denuncia> findComDetalhesById(Long id);
 
-    /** Existe e não está oculta: base das interações públicas. */
+    /** Existe e não está oculta: base das interações de sinalização. */
     boolean existsByIdAndOcultaFalse(Long id);
+
+    /** Existe, não está oculta e não é duplicada de outra: base de curtir, incentivar e comentar. */
+    boolean existsByIdAndOcultaFalseAndDuplicadaDeIdIsNull(Long id);
+
+    boolean existsByDuplicadaDeId(Long principalId);
+
+    /** Todas as agrupadas a esta (painel da equipe). */
+    List<Denuncia> findByDuplicadaDeIdOrderByIdAsc(Long principalId);
+
+    /** Só as visíveis (página pública). */
+    List<Denuncia> findByDuplicadaDeIdAndOcultaFalseOrderByIdAsc(Long principalId);
 
     /** Listagem com filtros: carrega categoria e autor junto, evitando N+1. */
     @Override
@@ -34,6 +45,7 @@ public interface DenunciaRepository
             SELECT d FROM Denuncia d
             WHERE d.categoria.id = :categoriaId
               AND d.oculta = false
+              AND d.duplicadaDeId IS NULL
               AND d.status NOT IN :encerradas
               AND (LOWER(d.bairro) = :bairro
                    OR (d.latitude BETWEEN :latMin AND :latMax

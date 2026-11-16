@@ -21,21 +21,25 @@ public class DenunciaConsultaService {
 
     public record Contadores(long curtidas, long incentivos, long comentarios) {}
 
-    public record Resultado(Page<Denuncia> page, Map<Long, Contadores> contadores) {}
+    /** fotos: id da ocorrência -> id da primeira foto (ausente se não tiver foto). */
+    public record Resultado(Page<Denuncia> page, Map<Long, Contadores> contadores, Map<Long, Long> fotos) {}
 
     private final DenunciaRepository denunciaRepository;
     private final CurtidaRepository curtidaRepository;
     private final IncentivoRepository incentivoRepository;
     private final ComentarioRepository comentarioRepository;
+    private final FotoRepository fotoRepository;
 
     public DenunciaConsultaService(DenunciaRepository denunciaRepository,
                                    CurtidaRepository curtidaRepository,
                                    IncentivoRepository incentivoRepository,
-                                   ComentarioRepository comentarioRepository) {
+                                   ComentarioRepository comentarioRepository,
+                                   FotoRepository fotoRepository) {
         this.denunciaRepository = denunciaRepository;
         this.curtidaRepository = curtidaRepository;
         this.incentivoRepository = incentivoRepository;
         this.comentarioRepository = comentarioRepository;
+        this.fotoRepository = fotoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -45,10 +49,11 @@ public class DenunciaConsultaService {
 
         List<Long> ids = page.getContent().stream().map(Denuncia::getId).toList();
         Map<Long, Contadores> contadores = new HashMap<>();
+        Map<Long, Long> fotos = new HashMap<>();
 
         if (!ids.isEmpty()) {
             Map<Long, Long> curtidas = mapa(curtidaRepository.contarPorDenuncia(ids));
-            Map<Long, Long> incentivos = mapa(incentivoRepository.contarPorDenuncia(ids));
+            Map<Long, Long> incentivos = mapa(incentivoRepository.contarConsolidadoPorDenuncia(ids));
             Map<Long, Long> comentarios = mapa(comentarioRepository.contarPorDenuncia(ids));
             for (Long id : ids) {
                 contadores.put(id, new Contadores(
@@ -56,8 +61,9 @@ public class DenunciaConsultaService {
                         incentivos.getOrDefault(id, 0L),
                         comentarios.getOrDefault(id, 0L)));
             }
+            fotos.putAll(mapa(fotoRepository.primeirasFotos(ids)));
         }
-        return new Resultado(page, contadores);
+        return new Resultado(page, contadores, fotos);
     }
 
     private static Map<Long, Long> mapa(List<ContagemPorDenuncia> lista) {

@@ -20,15 +20,18 @@ public class GestaoController {
     private final GestaoDenunciaService gestaoService;
     private final HistoricoDetalheService detalheService;
     private final EncaminhamentoDetalheService encaminhamentoService;
+    private final AgrupamentoRepository agrupamentoRepository;
 
     public GestaoController(DenunciaRepository denunciaRepository,
                             GestaoDenunciaService gestaoService,
                             HistoricoDetalheService detalheService,
-                            EncaminhamentoDetalheService encaminhamentoService) {
+                            EncaminhamentoDetalheService encaminhamentoService,
+                            AgrupamentoRepository agrupamentoRepository) {
         this.denunciaRepository = denunciaRepository;
         this.gestaoService = gestaoService;
         this.detalheService = detalheService;
         this.encaminhamentoService = encaminhamentoService;
+        this.agrupamentoRepository = agrupamentoRepository;
     }
 
     @GetMapping
@@ -45,6 +48,13 @@ public class GestaoController {
         model.addAttribute("historicoPrioridade", detalhes.prioridades());
         model.addAttribute("enc", encaminhamentoService.carregar(d));
         model.addAttribute("opcoes", encaminhamentoService.opcoes());
+
+        Long principalId = d.getDuplicadaDeId();
+        model.addAttribute("agrupada", principalId != null);
+        model.addAttribute("principal", principalId == null
+                ? null : denunciaRepository.findComDetalhesById(principalId).orElse(null));
+        model.addAttribute("filhas", denunciaRepository.findByDuplicadaDeIdOrderByIdAsc(id));
+        model.addAttribute("historicoAgrupamento", agrupamentoRepository.historicoDe(id));
         return "gestao-denuncia";
     }
 

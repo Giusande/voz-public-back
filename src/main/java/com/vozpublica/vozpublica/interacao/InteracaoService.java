@@ -48,11 +48,14 @@ public class InteracaoService {
         return incentivoRepository.inserir(denunciaId, usuarioId) > 0;
     }
 
-    /** emailOuNull = visitante (sem login). */
+    /**
+     * emailOuNull = visitante (sem login). Os incentivos são consolidados: contam as pessoas
+     * distintas que apoiaram a ocorrência ou qualquer duplicada agrupada a ela.
+     */
     @Transactional(readOnly = true)
     public Resumo resumo(Long denunciaId, String emailOuNull) {
         long curtidas = curtidaRepository.countByDenunciaId(denunciaId);
-        long incentivos = incentivoRepository.countByDenunciaId(denunciaId);
+        long incentivos = incentivoRepository.contarConsolidado(denunciaId);
 
         if (emailOuNull == null) {
             return new Resumo(curtidas, incentivos, false, false);
@@ -60,11 +63,11 @@ public class InteracaoService {
         Long usuarioId = usuarioId(emailOuNull);
         return new Resumo(curtidas, incentivos,
                 curtidaRepository.existsByDenunciaIdAndUsuarioId(denunciaId, usuarioId),
-                incentivoRepository.existsByDenunciaIdAndUsuarioId(denunciaId, usuarioId));
+                incentivoRepository.contarDoUsuarioConsolidado(denunciaId, usuarioId) > 0);
     }
 
     private void garantirDenuncia(Long denunciaId) {
-        if (!denunciaRepository.existsById(denunciaId)) {
+        if (!denunciaRepository.existsByIdAndOcultaFalseAndDuplicadaDeIdIsNull(denunciaId)) {
             throw new DenunciaNaoEncontradaException();
         }
     }

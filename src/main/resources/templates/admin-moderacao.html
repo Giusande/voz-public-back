@@ -1,85 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Moderação - Voz Pública</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<main class="container py-4" style="max-width: 1100px;">
-    <nav class="mb-3 d-flex flex-wrap gap-2">
-        <a th:href="@{/admin/moderacao}" class="btn btn-secondary btn-sm">Moderação</a>
-        <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary btn-sm">Usuários</a>
-        <a th:href="@{/admin/auditoria}" class="btn btn-outline-secondary btn-sm">Auditoria</a>
-        <a th:href="@{/admin/unidades}" class="btn btn-outline-secondary btn-sm">Unidades</a>
-        <a th:href="@{/admin/categorias}" class="btn btn-outline-secondary btn-sm">Prazos</a>
-    </nav>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div th:replace="~{menu-fragmento :: menu}"></div>
+    <main class="container py-4" style="max-width: 1100px">
+      <nav class="mb-3 d-flex flex-wrap gap-2">
+        <a th:href="@{/admin/moderacao}" class="btn btn-secondary btn-sm"
+          >Moderação</a
+        >
+        <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary btn-sm"
+          >Usuários</a
+        >
+        <a
+          th:href="@{/admin/auditoria}"
+          class="btn btn-outline-secondary btn-sm"
+          >Auditoria</a
+        >
+        <a th:href="@{/admin/unidades}" class="btn btn-outline-secondary btn-sm"
+          >Unidades</a
+        >
+        <a
+          th:href="@{/admin/categorias}"
+          class="btn btn-outline-secondary btn-sm"
+          >Prazos</a
+        >
+      </nav>
 
-    <h1 class="h4 mb-3">Fila de moderação</h1>
+      <h1 class="h4 mb-3">Fila de moderação</h1>
 
-    <div class="alert alert-success" th:if="${mensagem}" th:text="${mensagem}"></div>
-    <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
+      <div
+        class="alert alert-success"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></div>
+      <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
 
-    <p class="text-muted small">
-        Sinalizações abertas, da mais antiga para a mais recente. Quem sinalizou não é exibido.
-        <strong>Ocultar</strong> retira o conteúdo da vista pública (nada é apagado) e encerra todas as
-        sinalizações abertas dele. <strong>Descartar</strong> mantém o conteúdo e encerra só esta sinalização.
-        Toda decisão exige justificativa e fica na auditoria.
-    </p>
+      <p class="text-muted small">
+        Sinalizações abertas, da mais antiga para a mais recente. Quem sinalizou
+        não é exibido.
+        <strong>Ocultar</strong> retira o conteúdo da vista pública (nada é
+        apagado) e encerra todas as sinalizações abertas dele.
+        <strong>Descartar</strong> mantém o conteúdo e encerra só esta
+        sinalização. Toda decisão exige justificativa e fica na auditoria.
+      </p>
 
-    <p class="text-muted" th:if="${page.empty}">Nenhuma sinalização aberta.</p>
+      <p class="text-muted" th:if="${page.empty}">
+        Nenhuma sinalização aberta.
+      </p>
 
-    <div class="card mb-3" th:each="i : ${page.content}">
+      <div class="card mb-3" th:each="i : ${page.content}">
         <div class="card-body">
-            <div class="d-flex flex-wrap gap-2 align-items-center mb-1">
-                <span class="badge text-bg-secondary" th:text="${i.tipo().rotulo}">Tipo</span>
-                <span class="badge text-bg-warning" th:text="${i.motivo().rotulo}">Motivo</span>
-                <span class="text-muted small"
-                      th:text="${#temporals.format(i.data(), 'dd/MM/yyyy HH:mm')}">data</span>
-            </div>
-            <p class="mb-1 small">
-                Publicação:
-                <a th:href="@{/denuncias/{id}(id=${i.denunciaId()})}" th:text="${i.tituloPublicacao()}">Título</a>
-            </p>
-            <blockquote class="border-start ps-3 mb-2" style="white-space: pre-line;"
-                        th:text="${i.trecho()}">Trecho</blockquote>
-            <p class="small mb-2" th:if="${!i.detalhe().isEmpty()}"
-               th:text="'Detalhe informado: ' + ${i.detalhe()}">detalhe</p>
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-1">
+            <span class="badge text-bg-secondary" th:text="${i.tipo().rotulo}"
+              >Tipo</span
+            >
+            <span class="badge text-bg-warning" th:text="${i.motivo().rotulo}"
+              >Motivo</span
+            >
+            <span
+              class="text-muted small"
+              th:text="${#temporals.format(i.data(), 'dd/MM/yyyy HH:mm')}"
+              >data</span
+            >
+          </div>
+          <p class="mb-1 small">
+            Publicação:
+            <a
+              th:href="@{/denuncias/{id}(id=${i.denunciaId()})}"
+              th:text="${i.tituloPublicacao()}"
+              >Título</a
+            >
+          </p>
+          <blockquote
+            class="border-start ps-3 mb-2"
+            style="white-space: pre-line"
+            th:text="${i.trecho()}"
+          >
+            Trecho
+          </blockquote>
+          <p
+            class="small mb-2"
+            th:if="${!i.detalhe().isEmpty()}"
+            th:text="'Detalhe informado: ' + ${i.detalhe()}"
+          >
+            detalhe
+          </p>
 
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <form th:action="@{/admin/moderacao/sinalizacoes/{id}/ocultar(id=${i.id()})}" method="post">
-                        <div class="input-group input-group-sm">
-                            <input type="text" name="justificativa" maxlength="1000" required
-                                   class="form-control" placeholder="Justificativa para ocultar">
-                            <button type="submit" class="btn btn-outline-danger">Ocultar conteúdo</button>
-                        </div>
-                    </form>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <form
+                th:action="@{/admin/moderacao/sinalizacoes/{id}/ocultar(id=${i.id()})}"
+                method="post"
+              >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="text"
+                    name="justificativa"
+                    maxlength="1000"
+                    required
+                    class="form-control"
+                    placeholder="Justificativa para ocultar"
+                  />
+                  <button type="submit" class="btn btn-outline-danger">
+                    Ocultar conteúdo
+                  </button>
                 </div>
-                <div class="col-md-6">
-                    <form th:action="@{/admin/moderacao/sinalizacoes/{id}/descartar(id=${i.id()})}" method="post">
-                        <div class="input-group input-group-sm">
-                            <input type="text" name="justificativa" maxlength="1000" required
-                                   class="form-control" placeholder="Justificativa para descartar">
-                            <button type="submit" class="btn btn-outline-secondary">Descartar</button>
-                        </div>
-                    </form>
-                </div>
+              </form>
             </div>
+            <div class="col-md-6">
+              <form
+                th:action="@{/admin/moderacao/sinalizacoes/{id}/descartar(id=${i.id()})}"
+                method="post"
+              >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="text"
+                    name="justificativa"
+                    maxlength="1000"
+                    required
+                    class="form-control"
+                    placeholder="Justificativa para descartar"
+                  />
+                  <button type="submit" class="btn btn-outline-secondary">
+                    Descartar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <nav class="d-flex justify-content-between" th:if="${page.totalPages > 1}">
-        <a class="btn btn-outline-secondary btn-sm" th:if="${page.hasPrevious()}"
-           th:href="@{/admin/moderacao(pagina=${page.number - 1})}">&laquo; Anteriores</a>
+      <nav
+        class="d-flex justify-content-between"
+        th:if="${page.totalPages > 1}"
+      >
+        <a
+          class="btn btn-outline-secondary btn-sm"
+          th:if="${page.hasPrevious()}"
+          th:href="@{/admin/moderacao(pagina=${page.number - 1})}"
+          >&laquo; Anteriores</a
+        >
         <span th:unless="${page.hasPrevious()}"></span>
-        <span class="text-muted small align-self-center"
-              th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}">Página</span>
-        <a class="btn btn-outline-secondary btn-sm" th:if="${page.hasNext()}"
-           th:href="@{/admin/moderacao(pagina=${page.number + 1})}">Próximas &raquo;</a>
+        <span
+          class="text-muted small align-self-center"
+          th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}"
+          >Página</span
+        >
+        <a
+          class="btn btn-outline-secondary btn-sm"
+          th:if="${page.hasNext()}"
+          th:href="@{/admin/moderacao(pagina=${page.number + 1})}"
+          >Próximas &raquo;</a
+        >
         <span th:unless="${page.hasNext()}"></span>
-    </nav>
-</main>
-</body>
+      </nav>
+    </main>
+  </body>
 </html>

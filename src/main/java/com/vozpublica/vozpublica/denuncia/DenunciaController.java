@@ -71,6 +71,7 @@ public class DenunciaController {
         var resultado = consultaService.buscar(filtro, pagina);
         model.addAttribute("page", resultado.page());
         model.addAttribute("contadores", resultado.contadores());
+        model.addAttribute("fotos", resultado.fotos());
         model.addAttribute("categorias", categoriaRepository.findByAtivaTrueOrderByNome());
         model.addAttribute("regioes", REGIOES);
         model.addAttribute("prioridades", Prioridade.values());
@@ -89,7 +90,16 @@ public class DenunciaController {
         }
         var detalhes = detalheService.carregar(id);
 
+        Denuncia principal = null;
+        if (denuncia.isAgrupada()) {
+            principal = denunciaRepository.findComDetalhesById(denuncia.getDuplicadaDeId())
+                    .filter(p -> !p.isOculta() || admin).orElse(null);
+        }
+
         model.addAttribute("d", denuncia);
+        model.addAttribute("agrupada", denuncia.isAgrupada());
+        model.addAttribute("principal", principal);
+        model.addAttribute("filhas", denunciaRepository.findByDuplicadaDeIdAndOcultaFalseOrderByIdAsc(id));
         model.addAttribute("historico", detalhes.status());
         model.addAttribute("evidencias", detalhes.evidencias());
         model.addAttribute("historicoPrioridade", detalhes.prioridades());

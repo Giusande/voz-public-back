@@ -1,6 +1,8 @@
 package com.vozpublica.vozpublica.encaminhamento;
 
 import com.vozpublica.vozpublica.denuncia.Denuncia;
+import com.vozpublica.vozpublica.denuncia.HistoricoStatusRepository;
+import com.vozpublica.vozpublica.denuncia.StatusDenuncia;
 import com.vozpublica.vozpublica.unidade.Unidade;
 import com.vozpublica.vozpublica.unidade.UnidadeRepository;
 import com.vozpublica.vozpublica.user.Role;
@@ -22,13 +24,16 @@ public class EncaminhamentoDetalheService {
     public record Opcoes(List<Unidade> unidades, List<User> servidores) {}
 
     private final EncaminhamentoRepository encaminhamentoRepository;
+    private final HistoricoStatusRepository historicoRepository;
     private final UnidadeRepository unidadeRepository;
     private final UserRepository userRepository;
 
     public EncaminhamentoDetalheService(EncaminhamentoRepository encaminhamentoRepository,
+                                        HistoricoStatusRepository historicoRepository,
                                         UnidadeRepository unidadeRepository,
                                         UserRepository userRepository) {
         this.encaminhamentoRepository = encaminhamentoRepository;
+        this.historicoRepository = historicoRepository;
         this.unidadeRepository = unidadeRepository;
         this.userRepository = userRepository;
     }
@@ -39,7 +44,9 @@ public class EncaminhamentoDetalheService {
         List<Encaminhamento> historico =
                 encaminhamentoRepository.findByDenunciaIdOrderByIdDesc(denuncia.getId());
         Encaminhamento atual = historico.isEmpty() ? null : historico.get(0);
-        return new Visao(historico, atual, Prazo.calcular(denuncia, atual, LocalDate.now()));
+        var ultimaReabertura = historicoRepository.ultimaDataPara(denuncia.getId(), StatusDenuncia.REABERTA);
+        return new Visao(historico, atual,
+                Prazo.calcular(denuncia, atual, ultimaReabertura, LocalDate.now()));
     }
 
     @PreAuthorize("hasAnyRole('SERVIDOR', 'ADMINISTRADOR')")

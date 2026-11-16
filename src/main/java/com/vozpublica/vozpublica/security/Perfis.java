@@ -10,4 +10,10 @@ public final class Perfis {
         return authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"));
     }
+
+    public static boolean ehEquipe(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SERVIDOR")
+                            || a.getAuthority().equals("ROLE_ADMINISTRADOR"));
+    }
 }

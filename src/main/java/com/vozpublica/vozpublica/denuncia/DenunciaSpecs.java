@@ -1,10 +1,10 @@
 package com.vozpublica.vozpublica.denuncia;
 
+import com.vozpublica.vozpublica.interacao.Incentivo;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
-import com.vozpublica.vozpublica.interacao.Incentivo;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,8 @@ public final class DenunciaSpecs {
     public static Specification<Denuncia> de(FiltroDenuncia f) {
         return (root, query, cb) -> {
             List<Predicate> ps = new ArrayList<>();
-                ps.add(cb.isFalse(root.<Boolean>get("oculta")));
+            ps.add(cb.isFalse(root.<Boolean>get("oculta")));
+            ps.add(cb.isNull(root.get("duplicadaDeId")));
 
             if (f.getBairro() != null && !f.getBairro().isBlank()) {
                 String termo = f.getBairro().trim();
@@ -54,10 +55,17 @@ public final class DenunciaSpecs {
             if (!contagem) {
                 switch (f.getOrdem()) {
                     case INCENTIVADAS -> {
+                        // Pessoas distintas que incentivaram esta ocorrência ou qualquer duplicada agrupada a ela
                         Subquery<Long> total = query.subquery(Long.class);
                         Root<Incentivo> inc = total.from(Incentivo.class);
-                        total.select(cb.count(inc))
-                             .where(cb.equal(inc.get("denunciaId"), root.get("id")));
+                        Subquery<Long> filhas = total.subquery(Long.class);
+                        Root<Denuncia> filha = filhas.from(Denuncia.class);
+                        filhas.select(filha.<Long>get("id"))
+                              .where(cb.equal(filha.get("duplicadaDeId"), root.get("id")));
+                        total.select(cb.countDistinct(inc.get("usuarioId")))
+                             .where(cb.or(
+                                     cb.equal(inc.get("denunciaId"), root.get("id")),
+                                     inc.<Long>get("denunciaId").in(filhas)));
                         query.orderBy(cb.desc(total),
                                 cb.desc(root.get("dataCriacao")), cb.desc(root.get("id")));
                     }

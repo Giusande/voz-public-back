@@ -27,6 +27,11 @@ public class ComentarioService {
         if (!denunciaRepository.existsByIdAndOcultaFalse(denunciaId)) {
             throw new DenunciaNaoEncontradaException();
         }
+
+        if (!denunciaRepository.existsByIdAndOcultaFalseAndDuplicadaDeIdIsNull(denunciaId)) {
+            throw new DenunciaNaoEncontradaException();
+        }
+
         User autor = userRepository.findByEmail(emailAutor.trim().toLowerCase())
                 .orElseThrow(() -> new IllegalStateException("Usuário autenticado não encontrado."));
         return comentarioRepository.save(new Comentario(denunciaId, autor, conteudo.trim()));
