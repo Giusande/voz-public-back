@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voz Pública</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div th:replace="~{menu-fragmento :: menu}"></div>
+
+    <main class="container py-4" style="max-width: 760px">
+      <h1 class="h2" th:text="${mensagem}">Voz Pública</h1>
+      <p class="lead">
+        Registre problemas urbanos do Recife, apoie as ocorrências dos seus
+        vizinhos e acompanhe o que o poder público está fazendo.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <a th:href="@{/denuncias}" class="btn btn-primary">Ver ocorrências</a>
+        <a th:href="@{/denuncias/nova}" class="btn btn-outline-primary"
+          >Registrar ocorrência</a
+        >
+      </div>
+    </main>
+  </body>
+</html>

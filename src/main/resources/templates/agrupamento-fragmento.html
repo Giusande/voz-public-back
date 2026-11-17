@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div th:replace="~{menu-fragmento :: menu}"></div>
+    <!-- Visão PÚBLICA -->
+    <section th:fragment="publico">
+      <div class="alert alert-info" th:if="${agrupada}">
+        Esta ocorrência foi agrupada à principal
+        <a
+          th:if="${principal != null}"
+          th:href="@{/denuncias/{id}(id=${principal.id})}"
+          th:text="'#' + ${principal.id} + ' — ' + ${principal.titulo}"
+          >principal</a
+        >
+        <span
+          th:if="${principal != null}"
+          th:text="'(situação: ' + ${principal.status} + ')'"
+        ></span>
+        <span th:if="${principal == null}">(indisponível)</span>. Curtidas,
+        incentivos e comentários passam a ser feitos nela.
+      </div>
+
+      <div class="card card-body mb-3" th:if="${!filhas.empty}">
+        <h2 class="h6">Ocorrências agrupadas a esta</h2>
+        <p class="small text-muted mb-1">
+          O número de incentivos desta página soma as pessoas que apoiaram esta
+          ocorrência ou qualquer uma das agrupadas, sem contar duas vezes a
+          mesma pessoa.
+        </p>
+        <ul class="mb-0">
+          <li th:each="f : ${filhas}">
+            <a th:href="@{/denuncias/{id}(id=${f.id})}" th:text="${f.titulo}"
+              >Título</a
+            >
+            <span
+              class="text-muted small"
+              th:text="' · ' + ${#temporals.format(f.dataCriacao, 'dd/MM/yyyy')}"
+            ></span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Visão da EQUIPE -->
+    <section th:fragment="gestao">
+      <div class="card card-body mb-4">
+        <h3
+          class="h6"
+          th:text="'Duplicidades (esta é a ocorrência #' + ${d.id} + ')'"
+        >
+          Duplicidades
+        </h3>
+
+        <div th:if="${agrupada}">
+          <p class="mb-2">
+            Agrupada à principal
+            <a
+              th:if="${principal != null}"
+              th:href="@{/gestao/denuncias/{id}(id=${principal.id})}"
+              th:text="'#' + ${principal.id} + ' — ' + ${principal.titulo}"
+              >principal</a
+            >. Situação, prioridade oficial e encaminhamento são geridos na
+            principal.
+          </p>
+          <form
+            th:action="@{/gestao/denuncias/{id}/desagrupar(id=${d.id})}"
+            method="post"
+          >
+            <div class="input-group input-group-sm">
+              <input
+                type="text"
+                name="justificativa"
+                maxlength="1000"
+                required
+                class="form-control"
+                placeholder="Justificativa para desagrupar"
+              />
+              <button type="submit" class="btn btn-outline-danger">
+                Desagrupar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <form
+          th:if="${!agrupada and filhas.empty}"
+          th:action="@{/gestao/denuncias/{id}/agrupar(id=${d.id})}"
+          method="post"
+        >
+          <p class="small text-muted mb-2">
+            Para marcar esta ocorrência como duplicada de outra, informe o
+            número da principal (ele aparece no endereço da página:
+            /denuncias/<strong>NÚMERO</strong>).
+          </p>
+          <div class="row g-2">
+            <div class="col-md-3">
+              <input
+                type="number"
+                name="principalId"
+                min="1"
+                required
+                class="form-control form-control-sm"
+                placeholder="Nº da principal"
+              />
+            </div>
+            <div class="col-md-9">
+              <div class="input-group input-group-sm">
+                <input
+                  type="text"
+                  name="justificativa"
+                  maxlength="1000"
+                  required
+                  class="form-control"
+                  placeholder="Justificativa do agrupamento"
+                />
+                <button type="submit" class="btn btn-outline-primary">
+                  Agrupar
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div th:if="${!filhas.empty}">
+          <p class="mb-1">
+            Duplicadas agrupadas a esta (para desfazer, abra o painel da
+            duplicada):
+          </p>
+          <ul class="mb-2">
+            <li th:each="f : ${filhas}">
+              <a
+                th:href="@{/gestao/denuncias/{id}(id=${f.id})}"
+                th:text="'#' + ${f.id} + ' — ' + ${f.titulo}"
+                >filha</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <h4 class="h6 mt-3" th:if="${!historicoAgrupamento.empty}">
+          Histórico de agrupamentos
+        </h4>
+        <ul class="list-group" th:if="${!historicoAgrupamento.empty}">
+          <li
+            class="list-group-item small"
+            th:each="h : ${historicoAgrupamento}"
+          >
+            <strong
+              th:text="${h.tipo.rotulo} + ': #' + ${h.denunciaId} + ' → principal #' + ${h.principalId}"
+              >acao</strong
+            >
+            <span
+              class="text-muted"
+              th:text="' · ' + ${#temporals.format(h.dataAcao, 'dd/MM/yyyy HH:mm')} + ' · por ' + ${h.responsavel.name}"
+            ></span>
+            <div th:text="${h.justificativa}">justificativa</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </body>
+</html>
