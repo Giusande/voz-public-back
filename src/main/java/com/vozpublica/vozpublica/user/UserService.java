@@ -10,10 +10,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ContaProps props;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ContaProps props) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.props = props;
     }
 
     @Transactional
@@ -29,6 +31,9 @@ public class UserService {
                 email,
                 passwordEncoder.encode(form.getPassword()),
                 Role.CIDADAO); // todo cadastro público nasce como CIDADAO
+        if (props.isVerificacaoObrigatoria()) {
+            user.exigirVerificacaoEmail();
+        }
 
         try {
             return userRepository.saveAndFlush(user);

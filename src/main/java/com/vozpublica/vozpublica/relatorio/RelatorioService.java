@@ -58,6 +58,15 @@ public class RelatorioService {
 
     public record Painel(Indicadores geral, List<Linha> bairros, List<Linha> categorias, List<Linha> meses) {}
 
+    @Transactional(readOnly = true)
+    public Painel painelPublico(FiltroRelatorio filtro) {
+        return new Painel(
+                indicadores(filtro),
+                agrupar(Dimensao.BAIRRO, filtro, 15),
+                agrupar(Dimensao.CATEGORIA, filtro, 10),
+                agrupar(Dimensao.MES, filtro, 12));
+    }
+
     private record Consulta(String where, MapSqlParameterSource params) {}
 
     private static final String PRAZO = PrazoSql.PRAZO;

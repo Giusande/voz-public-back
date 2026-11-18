@@ -13,14 +13,37 @@
     <main class="container" style="max-width: 420px; margin-top: 60px">
       <h1 class="h3 mb-4">Entrar no Voz Pública</h1>
 
-      <div class="alert alert-success" th:if="${param.registered}">
+      <div
+        class="alert alert-success"
+        th:if="${param.containsKey('registered') and verificacaoObrigatoria}"
+      >
+        Cadastro realizado! Enviamos um link de confirmação para o seu e-mail.
+        Confirme-o antes de entrar.
+      </div>
+      <div
+        class="alert alert-success"
+        th:if="${param.containsKey('registered') and !verificacaoObrigatoria}"
+      >
         Cadastro realizado! Faça login.
+      </div>
+      <div class="alert alert-success" th:if="${param.verificado}">
+        E-mail confirmado! Você já pode entrar.
+      </div>
+      <div class="alert alert-success" th:if="${param.senhaRedefinida}">
+        Senha alterada. Entre com a nova senha.
       </div>
       <div class="alert alert-warning" th:if="${param.encerrada}">
         Sua sessão foi encerrada porque a conta foi alterada. Entre novamente.
       </div>
+      <div class="alert alert-warning" th:if="${param.bloqueado}">
+        Muitas tentativas de login. Aguarde cerca de 15 minutos e tente de novo.
+      </div>
       <div class="alert alert-danger" th:if="${param.error}">
         E-mail ou senha inválidos.
+        <span th:if="${verificacaoObrigatoria}"
+          >Se você acabou de se cadastrar, confirme o seu e-mail antes de
+          entrar.</span
+        >
       </div>
 
       <form th:action="@{/login}" method="post">
@@ -48,7 +71,15 @@
         <button type="submit" class="btn btn-primary w-100">Entrar</button>
       </form>
 
-      <p class="mt-3 text-center">
+      <p class="mt-3 mb-1 text-center">
+        <a th:href="@{/recuperar-senha}">Esqueci minha senha</a>
+      </p>
+      <p class="mb-1 text-center" th:if="${verificacaoObrigatoria}">
+        <a th:href="@{/verificar-email/reenviar}"
+          >Não recebeu o e-mail de confirmação?</a
+        >
+      </p>
+      <p class="text-center">
         Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se</a>
       </p>
     </main>

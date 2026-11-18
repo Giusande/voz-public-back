@@ -1,5 +1,6 @@
 package com.vozpublica.vozpublica.user;
 
+import com.vozpublica.vozpublica.email.EmailService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,9 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class RegisterController {
 
     private final UserService userService;
+    private final ContaRecuperacaoService recuperacaoService;
+    private final EmailService emailService;
 
-    public RegisterController(UserService userService) {
+    public RegisterController(UserService userService, ContaRecuperacaoService recuperacaoService,
+                              EmailService emailService) {
         this.userService = userService;
+        this.recuperacaoService = recuperacaoService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/cadastro")
@@ -37,7 +43,9 @@ public class RegisterController {
         }
 
         try {
-            userService.register(form);
+            User novo = userService.register(form);
+            recuperacaoService.verificacaoParaNovaConta(novo)
+                    .ifPresent(e -> emailService.enviarVerificacao(e.destino(), e.nome(), e.token()));
         } catch (EmailAlreadyUsedException e) {
             result.rejectValue("email", "duplicate", e.getMessage());
             return "register";

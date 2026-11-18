@@ -1,5 +1,6 @@
 package com.vozpublica.vozpublica.security;
 
+import com.vozpublica.vozpublica.user.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,9 +16,15 @@ import java.util.regex.Pattern;
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     public static final String ATRIBUTO_RETORNO = "RETORNO_APOS_LOGIN";
+    public static final String ATRIBUTO_VERSAO = "VERSAO_CREDENCIAL";
     public static final Pattern RETORNO_VALIDO = Pattern.compile("/denuncias/\\d+");
 
-    public LoginSuccessHandler() {
+    private final LimitadorTentativas limitador;
+    private final UserRepository userRepository;
+
+    public LoginSuccessHandler(LimitadorTentativas limitador, UserRepository userRepository) {
+        this.limitador = limitador;
+        this.userRepository = userRepository;
         setDefaultTargetUrl("/");
     }
 
@@ -25,6 +32,12 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication)
             throws IOException, ServletException {
+        limitador.limpar(ChavesLogin.par(ChavesLogin.emailDe(request), request.getRemoteAddr()));
+
+        // Se a senha mudar depois, o filtro de sessão encerra esta sessão
+        userRepository.findByEmail(authentication.getName().trim().toLowerCase()).ifPresent(u ->
+                request.getSession().setAttribute(ATRIBUTO_VERSAO, u.getVersaoCredencial()));
+
         HttpSession sessao = request.getSession(false);
         if (sessao != null) {
             Object retorno = sessao.getAttribute(ATRIBUTO_RETORNO);
