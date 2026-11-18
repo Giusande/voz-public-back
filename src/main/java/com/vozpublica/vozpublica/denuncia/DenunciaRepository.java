@@ -2,6 +2,7 @@ package com.vozpublica.vozpublica.denuncia;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,9 @@ public interface DenunciaRepository
 
     @EntityGraph(attributePaths = {"categoria", "autor"})
     Page<Denuncia> findAllByOrderByDataCriacaoDesc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"categoria"})
+    List<Denuncia> findAll(Specification<Denuncia> spec, Sort sort);
 
     @EntityGraph(attributePaths = {"categoria", "autor"})
     Optional<Denuncia> findComDetalhesById(Long id);

@@ -34,7 +34,8 @@ public class SecurityConfig {
                  "/css/**", "/js/**", "/images/**",
                  "/favicon.ico", "/.well-known/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/denuncias", "/denuncias/{id:\\d+}",
-                 "/fotos/{id:\\d+}", "/evidencias/{id:\\d+}", "/perfil/{id:\\d+}").permitAll()
+                 "/fotos/{id:\\d+}", "/evidencias/{id:\\d+}", "/perfil/{id:\\d+}",
+                 "/mapa", "/mapa/dados").permitAll()
                 .requestMatchers("/gestao/**").hasAnyRole("SERVIDOR", "ADMINISTRADOR")
                 .requestMatchers("/admin/**").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated())
