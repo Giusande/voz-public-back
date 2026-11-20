@@ -1,29 +1,175 @@
 <!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Voz Pública</title>
+    <th:block
+      th:replace="~{layout-fragmentos :: headComum('Ocorrências do Recife')}"
+    ></th:block>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
     />
   </head>
-  <body class="bg-light">
-    <div th:replace="~{menu-fragmento :: menu}"></div>
+  <body>
+    <div th:replace="~{layout-fragmentos :: topbar(true)}"></div>
 
-    <main class="container py-4" style="max-width: 760px">
-      <h1 class="h2" th:text="${mensagem}">Voz Pública</h1>
-      <p class="lead">
-        Registre problemas urbanos do Recife, apoie as ocorrências dos seus
-        vizinhos e acompanhe o que o poder público está fazendo.
-      </p>
-      <div class="d-flex flex-wrap gap-2">
-        <a th:href="@{/denuncias}" class="btn btn-primary">Ver ocorrências</a>
-        <a th:href="@{/denuncias/nova}" class="btn btn-outline-primary"
-          >Registrar ocorrência</a
-        >
-      </div>
-    </main>
+    <div
+      class="vp-grid vp-grid--3"
+      th:with="manter=${(filtro.status != null ? '&status=' + filtro.status : '') + (filtro.prioridade != null ? '&prioridade=' + filtro.prioridade : '')},
+              filtroAtivo=${filtro.prioridade != null and filtro.prioridade.name() == 'URGENTE' ? 'urgentes' : (filtro.status != null and filtro.status.name() == 'EM_EXECUCAO' ? 'andamento' : (filtro.status != null and filtro.status.name() == 'RESOLVIDA' ? 'resolvidas' : (filtro.prioridade == null and filtro.status == null ? 'todas' : '')))}"
+    >
+      <div
+        th:replace="~{layout-fragmentos :: sidebar(true, 'feed', ${filtroAtivo})}"
+      ></div>
+
+      <!-- ===== FEED ===== -->
+      <main>
+        <section class="vp-card vp-cab mb-3">
+          <h1>Ocorrências do Recife</h1>
+          <p>
+            Encontre problemas urbanos, acompanhe soluções e incentive
+            ocorrências que também afetam você.
+          </p>
+          <div class="vp-pills">
+            <a
+              class="vp-pill"
+              th:classappend="${filtro.ordem.name() == 'RECENTES'} ? 'ativo'"
+              th:href="@{'/?ordem=RECENTES' + ${manter}}"
+              >Mais recentes</a
+            >
+            <a
+              class="vp-pill"
+              th:classappend="${filtro.ordem.name() == 'INCENTIVADAS'} ? 'ativo'"
+              th:href="@{'/?ordem=INCENTIVADAS' + ${manter}}"
+              >Mais incentivadas</a
+            >
+            <a
+              class="vp-pill"
+              th:classappend="${filtro.ordem.name() == 'URGENTES'} ? 'ativo'"
+              th:href="@{'/?ordem=URGENTES' + ${manter}}"
+              >Urgentes</a
+            >
+            <a class="vp-link" th:href="@{/denuncias}">Filtros avançados</a>
+          </div>
+        </section>
+
+        <p class="text-muted" th:if="${page.empty}">
+          Nenhuma ocorrência encontrada.
+        </p>
+
+        <th:block th:each="d : ${page.content}">
+          <article th:replace="~{layout-fragmentos :: cartao(${d}, ${contadores.get(d.id)}, ${fotos.get(d.id)}, ${curtidos.contains(d.id)}, ${incentivados.contains(d.id)}, ${'/?' + filtro.queryString(page.number)})}"></article>
+        </th:block>
+
+        <nav
+          th:replace="~{layout-fragmentos :: paginacao(${page}, ${'/?' + filtro.queryString(page.number - 1)}, ${'/?' + filtro.queryString(page.number + 1)})}"
+        ></nav>
+      </main>
+
+      <!-- ===== PAINEL DIREITO ===== -->
+      <aside class="vp-direita" aria-label="Painel lateral">
+        <section class="vp-card" th:with="g=${painel.geral()}">
+          <h2>Resumo da cidade</h2>
+          <ul class="vp-lista">
+            <li><span>Denúncias</span><b th:text="${g.total()}">0</b></li>
+            <li><span>Em análise</span><b th:text="${g.emAnalise()}">0</b></li>
+            <li>
+              <span>Em andamento</span><b th:text="${g.emExecucao()}">0</b>
+            </li>
+            <li><span>Resolvidas</span><b th:text="${g.resolvidas()}">0</b></li>
+          </ul>
+          <p class="small text-muted mt-2 mb-0">
+            Dados da plataforma, não oficiais.
+            <a th:href="@{/transparencia}">Ver transparência</a>
+          </p>
+        </section>
+
+        <section class="vp-card">
+          <h2>Mapa de ocorrências</h2>
+          <div
+            id="mapa-mini"
+            th:data-dados="@{/mapa/dados}"
+            role="img"
+            aria-label="Miniatura do mapa de ocorrências"
+          ></div>
+          <a class="vp-btn w-100" th:href="@{/mapa}">Ver mapa completo</a>
+        </section>
+
+        <section class="vp-card">
+          <h2>Mais incentivadas</h2>
+          <p class="small text-muted mb-0" th:if="${maisIncentivadas.empty}">
+            Nenhuma ocorrência incentivada ainda.
+          </p>
+          <ul class="vp-lista" th:if="${!maisIncentivadas.empty}">
+            <li th:each="d : ${maisIncentivadas}">
+              <a
+                th:href="@{/denuncias/{id}(id=${d.id})}"
+                th:text="${#strings.abbreviate(d.titulo, 40)}"
+                >Título</a
+              >
+              <b th:text="${contadoresTop.get(d.id).incentivos()}">0</b>
+            </li>
+          </ul>
+        </section>
+
+        <section class="vp-card">
+          <h2>Categorias mais frequentes</h2>
+          <p class="small text-muted mb-0" th:if="${painel.categorias().empty}">
+            Sem dados.
+          </p>
+          <ul class="vp-lista" th:if="${!painel.categorias().empty}">
+            <li
+              th:each="l, st : ${painel.categorias()}"
+              th:if="${st.index < 5}"
+            >
+              <span th:text="${l.grupo()}">Categoria</span>
+              <b th:text="${l.indicadores().total()}">0</b>
+            </li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      (function () {
+        var el = document.getElementById("mapa-mini");
+        if (!el || !window.L) return;
+        var mapa = L.map(el, {
+          zoomControl: false,
+          scrollWheelZoom: false,
+          dragging: false,
+          doubleClickZoom: false,
+          boxZoom: false,
+          keyboard: false,
+          touchZoom: false,
+        }).setView([-8.0476, -34.877], 11);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(mapa);
+        fetch(el.getAttribute("data-dados"), { credentials: "same-origin" })
+          .then(function (r) {
+            if (!r.ok) throw new Error();
+            return r.json();
+          })
+          .then(function (dados) {
+            var pontos = [];
+            dados.marcadores.forEach(function (m) {
+              L.circleMarker([m.lat, m.lng], {
+                radius: 5,
+                color: "#1a63f0",
+                weight: 2,
+                fillOpacity: 0.6,
+              }).addTo(mapa);
+              pontos.push([m.lat, m.lng]);
+            });
+            if (pontos.length > 0)
+              mapa.fitBounds(pontos, { padding: [15, 15], maxZoom: 15 });
+          })
+          .catch(function () {});
+      })();
+    </script>
+    <script th:replace="~{layout-fragmentos :: copiar}"></script>
   </body>
 </html>

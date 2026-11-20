@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<link th:fragment="icones" rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<!-- ================= ESTILO DO TEMA (fonte única) ================= -->
+<style th:fragment="estilo">
+    :root{--vp-azul:#1a63f0;--vp-azul-esc:#124cc0;--vp-azul-cl:#eaf1ff;--vp-fundo:#f3f5f8;
+          --vp-borda:#e3e7ed;--vp-texto:#1c2430;--vp-suave:#667085}
+    body{background:var(--vp-fundo);color:var(--vp-texto);
+         font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+
+    .vp-topbar{background:#fff;border-bottom:1px solid var(--vp-borda);position:sticky;top:0;z-index:1030;margin-bottom:1rem}
+    .vp-topbar__in{max-width:1280px;margin:0 auto;padding:.65rem 1rem;display:flex;align-items:center;gap:.75rem}
+    .vp-logo{font-weight:800;font-size:1.35rem;color:var(--vp-texto);text-decoration:none}
+    .vp-logo span{color:var(--vp-azul)}
+    .vp-topbar__acoes{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+    .vp-btn{display:inline-flex;align-items:center;justify-content:center;padding:.45rem .9rem;border-radius:.5rem;
+            font-weight:600;font-size:.9rem;text-decoration:none;border:1px solid var(--vp-borda);background:#fff;
+            color:var(--vp-texto);cursor:pointer}
+    .vp-btn:hover{background:#f6f8fb;color:var(--vp-texto)}
+    .vp-btn--pri{background:var(--vp-azul);border-color:var(--vp-azul);color:#fff}
+    .vp-btn--pri:hover{background:var(--vp-azul-esc);border-color:var(--vp-azul-esc);color:#fff}
+    .vp-hamb{font-size:1.3rem;line-height:1;text-decoration:none;color:var(--vp-texto);padding:.25rem .6rem;
+             border:1px solid var(--vp-borda);border-radius:.5rem}
+    @media(max-width:575px){.vp-btn{padding:.4rem .6rem;font-size:.82rem}.vp-logo{font-size:1.15rem}}
+
+    .vp-grid{max-width:1280px;margin:0 auto;padding:0 1rem 1.5rem;display:grid;gap:1rem;grid-template-columns:minmax(0,1fr)}
+    @media(min-width:992px){
+        .vp-grid--2{grid-template-columns:220px minmax(0,1fr)}
+        .vp-grid--3{grid-template-columns:220px minmax(0,1fr)}
+        .vp-grid--3>.vp-direita{grid-column:1/-1}
+        .vp-hamb--fixa{display:none}
+    }
+    @media(min-width:1200px){
+        .vp-grid--3{grid-template-columns:220px minmax(0,1fr) 300px}
+        .vp-grid--3>.vp-direita{grid-column:auto}
+    }
+
+    /* menu lateral: gaveta no celular/tablet, coluna fixa no desktop */
+    .vp-sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:290px;max-width:88vw;background:#fff;z-index:1060;
+                padding:1rem;overflow-y:auto;box-shadow:0 0 0 100vmax rgba(16,24,40,.35)}
+    .vp-sidebar:target{display:block}
+    @media(min-width:992px){
+        .vp-sidebar--fixa{display:block;position:sticky;top:76px;align-self:start;width:auto;max-width:none;padding:0;
+                          background:transparent;box-shadow:none;z-index:auto;max-height:calc(100vh - 90px)}
+        .vp-sidebar--fixa .vp-fechar{display:none}
+    }
+    .vp-nav a,.vp-nav button{display:block;width:100%;text-align:left;padding:.55rem .75rem;border-radius:.5rem;
+                             color:var(--vp-suave);text-decoration:none;font-size:.95rem;background:none;border:0;cursor:pointer}
+    .vp-nav a:hover,.vp-nav button:hover{background:#e9edf3;color:var(--vp-texto)}
+    .vp-nav a.ativo{background:var(--vp-azul-cl);color:var(--vp-azul);font-weight:600}
+    .vp-nav h2{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vp-suave);margin:1.1rem .75rem .35rem}
+    .vp-badge{display:inline-block;min-width:1.3rem;padding:0 .4rem;border-radius:1rem;background:#d92d20;color:#fff;
+              font-size:.72rem;text-align:center;margin-left:.3rem}
+
+    .vp-card{background:#fff;border:1px solid var(--vp-borda);border-radius:.85rem;
+             box-shadow:0 1px 2px rgba(16,24,40,.05);padding:1rem 1.1rem}
+    .vp-cab h1{font-size:1.6rem;font-weight:800;margin:0}
+    .vp-cab p{color:var(--vp-suave);margin:.25rem 0 .9rem}
+    .vp-pills{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+    .vp-pill{padding:.35rem .8rem;border:1px solid var(--vp-borda);border-radius:.5rem;background:#f5f7fa;
+             color:var(--vp-suave);text-decoration:none;font-size:.9rem}
+    .vp-pill:hover{color:var(--vp-texto)}
+    .vp-pill.ativo{background:var(--vp-azul-cl);border-color:var(--vp-azul);color:var(--vp-azul);font-weight:600}
+
+    .vp-post{margin-bottom:1rem}
+    .vp-post__autor{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+    .vp-avatar{width:2.2rem;height:2.2rem;border-radius:50%;background:var(--vp-azul-cl);color:var(--vp-azul);
+               font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+    .vp-post h2{font-size:1.1rem;font-weight:700;margin:.2rem 0}
+    .vp-post h2 a{color:inherit;text-decoration:none}
+    .vp-post h2 a:hover{color:var(--vp-azul)}
+    .vp-post__txt{color:var(--vp-suave);margin-bottom:.6rem;overflow-wrap:anywhere}
+    .vp-post__foto{width:100%;max-height:300px;object-fit:cover;border-radius:.6rem;margin-bottom:.6rem}
+    .vp-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+    .vp-tag{font-size:.75rem;padding:.18rem .5rem;border-radius:.4rem;background:#eef1f5;color:#475467}
+    .vp-st-RECEBIDA{background:#eef1f5;color:#475467}
+    .vp-st-EM_ANALISE{background:#e6f1fb;color:#0b5394}
+    .vp-st-ENCAMINHADA{background:#e8eefc;color:#2a4bb8}
+    .vp-st-EM_EXECUCAO{background:#e3f6ec;color:#0a7a4a}
+    .vp-st-RESOLVIDA{background:#d3f0df;color:#075e36}
+    .vp-st-INDEFERIDA{background:#e4e6eb;color:#344054}
+    .vp-st-REABERTA{background:#fdecea;color:#b42318}
+    .vp-pr-BAIXA{background:#eef1f5;color:#475467}
+    .vp-pr-MEDIA{background:#fff6dd;color:#8a6100}
+    .vp-pr-ALTA{background:#ffeede;color:#b54708}
+    .vp-pr-URGENTE{background:#fdecea;color:#b42318}
+
+    .vp-meta{display:flex;align-items:center;gap:1rem;border-top:1px solid var(--vp-borda);padding-top:.6rem;
+             margin-bottom:.6rem;font-size:.85rem;color:var(--vp-suave)}
+    .vp-link{margin-left:auto;background:none;border:0;color:var(--vp-azul);font-size:.85rem;cursor:pointer}
+    .vp-acoes{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+    @media(max-width:575px){.vp-acoes{grid-template-columns:1fr 1fr}.vp-acoes>a:last-child{grid-column:1/-1}}
+
+    .vp-direita{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-content:start}
+    @media(min-width:1200px){.vp-direita{grid-template-columns:1fr}}
+    .vp-direita h2{font-size:1rem;font-weight:700;margin:0 0 .6rem}
+    .vp-lista{list-style:none;margin:0;padding:0}
+    .vp-lista li{display:flex;justify-content:space-between;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--vp-borda);font-size:.88rem}
+    .vp-lista li:last-child{border-bottom:0}
+    .vp-lista a{color:inherit;text-decoration:none;overflow-wrap:anywhere}
+    .vp-lista a:hover{color:var(--vp-azul)}
+    #mapa-mini{height:170px;border-radius:.6rem;background:#dfe8df;margin-bottom:.6rem}
+
+        /* ===== menu lateral com ícones coloridos ===== */
+    .vp-nav a,.vp-nav button{display:flex;align-items:center;gap:.7rem;padding:.5rem .65rem;
+                             border-radius:.6rem;font-weight:500}
+    .vp-nav a span,.vp-nav button span{flex:1}
+    .vp-nav a:hover,.vp-nav button:hover{background:#f0f3f8}
+    .vp-nav a.ativo{background:var(--vp-azul-cl);color:var(--vp-azul);font-weight:700;
+                    box-shadow:inset 3px 0 0 var(--vp-azul)}
+    .vp-nav a.ativo .vp-ic{background:var(--vp-azul);color:#fff}
+    .vp-nav h2{display:flex;align-items:center;gap:.5rem;margin:1.1rem .65rem .4rem}
+    .vp-nav h2::after{content:"";flex:1;height:1px;background:var(--vp-borda)}
+    .vp-ic{width:1.9rem;height:1.9rem;border-radius:.55rem;display:inline-flex;align-items:center;
+           justify-content:center;flex:none;font-size:1rem}
+    .ic-azul{background:#eaf1ff;color:#1a63f0}
+    .ic-verde{background:#e3f6ec;color:#0a7a4a}
+    .ic-ambar{background:#fff6dd;color:#b54708}
+    .ic-vermelho{background:#fdecea;color:#b42318}
+    .ic-roxo{background:#efeafe;color:#5b3fc4}
+    .ic-teal{background:#dff5f3;color:#0b7a75}
+    .ic-cinza{background:#eef1f5;color:#475467}
+    .vp-nav .vp-badge{margin-left:auto}
+    @media(min-width:992px){
+        .vp-sidebar--fixa{background:#fff;border:1px solid var(--vp-borda);border-radius:.85rem;padding:.6rem;
+                          box-shadow:0 1px 2px rgba(16,24,40,.05)}
+    }
+
+    /* ===== botões de curtir e incentivar no card ===== */
+    .vp-post{scroll-margin-top:80px}
+    .vp-acoes form{margin:0}
+    .vp-acoes .vp-btn{width:100%}
+    .vp-btn--curtiu{background:#fdecea;border-color:#f4b5ae;color:#b42318}
+    .vp-btn--curtiu:hover{background:#fbdcd8;color:#b42318}
+    .vp-btn--incentivou{background:#fff6dd;border-color:#f0d58a;color:#8a6100;opacity:1}
+</style>
+
+<!-- ================= CABEÇALHO (meta, Bootstrap, tema) ================= -->
+<th:block th:fragment="headComum(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' - Voz Pública'">Voz Pública</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+     <link th:replace="~{layout-fragmentos :: icones}">
+    <style th:replace="~{layout-fragmentos :: estilo}"></style>
+</th:block>
+
+<!-- ================= BARRA SUPERIOR ================= -->
+<header th:fragment="topbar(lateral)" class="vp-topbar">
+    <div class="vp-topbar__in">
+        <a href="#menu-lateral" class="vp-hamb" th:classappend="${lateral} ? 'vp-hamb--fixa'"
+           aria-label="Abrir menu">&#9776;</a>
+        <a th:href="@{/}" class="vp-logo"><span>Voz</span> Pública</a>
+        <div class="vp-topbar__acoes">
+            <a th:if="${navLogado}" th:href="@{/perfil}" class="vp-btn d-none d-sm-inline-flex">Meu perfil</a>
+            <a th:unless="${navLogado}" th:href="@{/login}" class="vp-btn">Entrar</a>
+            <a th:unless="${navLogado}" th:href="@{/cadastro}" class="vp-btn d-none d-sm-inline-flex">Cadastrar</a>
+            <a th:href="@{/denuncias/nova}" class="vp-btn vp-btn--pri">+ Nova denúncia</a>
+        </div>
+    </div>
+</header>
+
+<!-- ================= MENU LATERAL ================= -->
+<aside th:fragment="sidebar(fixa, ativo, filtroAtivo)" id="menu-lateral" class="vp-sidebar vp-nav"
+       th:classappend="${fixa} ? 'vp-sidebar--fixa'" aria-label="Menu principal">
+    <a href="#" class="vp-fechar"><i class="vp-ic ic-cinza bi bi-x-lg"></i><span>Fechar menu</span></a>
+
+    <a th:href="@{/}" th:classappend="${ativo == 'feed'} ? 'ativo'">
+        <i class="vp-ic ic-azul bi bi-house-door-fill"></i><span>Feed</span></a>
+    <a th:if="${navLogado}" th:href="@{/minhas-denuncias}">
+        <i class="vp-ic ic-roxo bi bi-journal-text"></i><span>Minhas denúncias</span></a>
+    <a th:if="${navLogado}" th:href="@{/notificacoes}">
+        <i class="vp-ic ic-ambar bi bi-bell-fill"></i><span>Notificações</span>
+        <span th:if="${navNaoLidas.total > 0}" id="nav-nao-lidas" class="vp-badge"
+              th:text="${navNaoLidas.total}">0</span></a>
+    <a th:if="${navLogado}" th:href="@{/perfil}">
+        <i class="vp-ic ic-cinza bi bi-person-circle"></i><span>Meu perfil</span></a>
+    <a th:href="@{/mapa}"><i class="vp-ic ic-verde bi bi-geo-alt-fill"></i><span>Mapa de problemas</span></a>
+    <a th:href="@{/transparencia}"><i class="vp-ic ic-teal bi bi-bar-chart-fill"></i><span>Transparência</span></a>
+
+    <h2>Filtrar</h2>
+    <a th:href="@{/}" th:classappend="${filtroAtivo == 'todas'} ? 'ativo'">
+        <i class="vp-ic ic-cinza bi bi-list-ul"></i><span>Todas</span></a>
+    <a th:href="@{/(prioridade='URGENTE')}" th:classappend="${filtroAtivo == 'urgentes'} ? 'ativo'">
+        <i class="vp-ic ic-vermelho bi bi-exclamation-triangle-fill"></i><span>Urgentes</span></a>
+    <a th:href="@{/(status='EM_EXECUCAO')}" th:classappend="${filtroAtivo == 'andamento'} ? 'ativo'">
+        <i class="vp-ic ic-ambar bi bi-tools"></i><span>Em andamento</span></a>
+    <a th:href="@{/(status='RESOLVIDA')}" th:classappend="${filtroAtivo == 'resolvidas'} ? 'ativo'">
+        <i class="vp-ic ic-verde bi bi-check-circle-fill"></i><span>Resolvidas</span></a>
+
+    <h2 th:if="${navEquipe}">Equipe</h2>
+    <a th:if="${navEquipe}" th:href="@{/gestao/dashboard}">
+        <i class="vp-ic ic-azul bi bi-speedometer2"></i><span>Dashboard</span></a>
+    <a th:if="${navEquipe}" th:href="@{/gestao/relatorios}">
+        <i class="vp-ic ic-azul bi bi-file-earmark-bar-graph-fill"></i><span>Relatórios</span></a>
+    <a th:if="${navEquipe}" th:href="@{/gestao/atrasadas}">
+        <i class="vp-ic ic-vermelho bi bi-alarm-fill"></i><span>Atrasadas</span></a>
+    <a th:if="${navEquipe}" th:href="@{/gestao/reavaliacao}">
+        <i class="vp-ic ic-ambar bi bi-arrow-repeat"></i><span>Reavaliação</span></a>
+
+    <h2 th:if="${navAdmin}">Administração</h2>
+    <a th:if="${navAdmin}" th:href="@{/admin/moderacao}">
+        <i class="vp-ic ic-vermelho bi bi-shield-exclamation"></i><span>Moderação</span></a>
+    <a th:if="${navAdmin}" th:href="@{/admin/usuarios}">
+        <i class="vp-ic ic-roxo bi bi-people-fill"></i><span>Usuários</span></a>
+    <a th:if="${navAdmin}" th:href="@{/admin/auditoria}">
+        <i class="vp-ic ic-cinza bi bi-clock-history"></i><span>Auditoria</span></a>
+    <a th:if="${navAdmin}" th:href="@{/admin/unidades}">
+        <i class="vp-ic ic-teal bi bi-building"></i><span>Unidades</span></a>
+    <a th:if="${navAdmin}" th:href="@{/admin/categorias}">
+        <i class="vp-ic ic-ambar bi bi-hourglass-split"></i><span>Prazos</span></a>
+
+    <form th:if="${navLogado}" th:action="@{/logout}" method="post" class="mt-3">
+        <button type="submit"><i class="vp-ic ic-cinza bi bi-box-arrow-right"></i><span>Sair</span></button>
+    </form>
+</aside>
+
+<!-- ================= SELO DE SITUAÇÃO ================= -->
+<span th:fragment="selo(status)" class="vp-tag" th:classappend="'vp-st-' + ${status.name()}"
+      th:text="'● ' + ${status.rotulo}">● Situação</span>
+
+<!-- ================= CARD DO FEED ================= -->
+<article th:fragment="cartao(d, c, foto, curtiu, incentivou, voltar)" class="vp-card vp-post"
+         th:id="'post-' + ${d.id}">
+    <div class="vp-post__autor">
+        <span class="vp-avatar" aria-hidden="true"
+              th:text="${#strings.toUpperCase(#strings.substring(d.autor.nomeExibicao, 0, 1))}">V</span>
+        <div>
+            <div class="fw-semibold" th:text="${d.autor.nomeExibicao}">Autor</div>
+            <div class="small text-muted"
+                 th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}">data</div>
+        </div>
+    </div>
+
+    <h2><a th:href="@{/denuncias/{id}(id=${d.id})}" th:text="${d.titulo}">Título</a></h2>
+    <p class="vp-post__txt" th:text="${#strings.abbreviate(d.descricao, 180)}">Resumo</p>
+    <div class="small text-muted mb-2" th:if="${d.endereco != null}" th:text="'📍 ' + ${d.endereco}">Endereço</div>
+
+    <a th:if="${foto != null}" th:href="@{/denuncias/{id}(id=${d.id})}">
+        <img class="vp-post__foto" th:src="@{/fotos/{fid}(fid=${foto})}" alt="Foto da ocorrência" loading="lazy">
+    </a>
+
+    <div class="vp-tags">
+        <span class="vp-tag" th:text="${d.bairro} + ' · ' + ${d.regiao}">Bairro · Região</span>
+        <span class="vp-tag" th:text="${d.categoria.nome}">Categoria</span>
+        <span class="vp-tag" th:with="p=${d.prioridadeOficial != null ? d.prioridadeOficial : d.prioridadeSugerida}"
+              th:classappend="'vp-pr-' + ${p.name()}"
+              th:title="${d.prioridadeOficial != null ? 'Prioridade oficial' : 'Prioridade sugerida pelo cidadão'}"
+              th:text="${p.name() == 'MEDIA' ? 'Média' : #strings.capitalize(#strings.toLowerCase(p.name()))}">Prioridade</span>
+        <span th:replace="~{layout-fragmentos :: selo(${d.status})}"></span>
+    </div>
+
+    <div class="vp-meta">
+        <span title="Curtidas">♥ <b th:text="${c.curtidas()}">0</b></span>
+        <span title="Incentivos">📣 <b th:text="${c.incentivos()}">0</b></span>
+        <span title="Comentários">💬 <b th:text="${c.comentarios()}">0</b></span>
+        <button type="button" class="vp-link js-copiar"
+                th:attr="data-caminho=@{/denuncias/{id}(id=${d.id})}">Copiar link</button>
+    </div>
+
+    <div class="vp-acoes">
+        <!-- logado: curtir e incentivar de verdade, voltando a este ponto do feed -->
+        <th:block th:if="${navLogado}">
+            <form th:action="@{/denuncias/{id}/curtir(id=${d.id})}" method="post">
+                <input type="hidden" name="voltar" th:value="${voltar}">
+                <button type="submit" class="vp-btn" th:classappend="${curtiu} ? 'vp-btn--curtiu'"
+                        th:attr="aria-pressed=${curtiu}"
+                        th:text="${curtiu} ? '♥ Curtido' : '♡ Curtir'">♡ Curtir</button>
+            </form>
+            <form th:if="${!incentivou}" th:action="@{/denuncias/{id}/incentivar(id=${d.id})}" method="post">
+                <input type="hidden" name="voltar" th:value="${voltar}">
+                <button type="submit" class="vp-btn">📣 Incentivar</button>
+            </form>
+            <div th:if="${incentivou}">
+                <button type="button" class="vp-btn vp-btn--incentivou" disabled>📣 Incentivado</button>
+            </div>
+        </th:block>
+
+        <!-- visitante: entra e volta à ocorrência -->
+        <th:block th:unless="${navLogado}">
+            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">♡ Curtir</a>
+            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">📣 Incentivar</a>
+        </th:block>
+
+        <a class="vp-btn" th:href="@{/denuncias/{id}(id=${d.id})}">Ver ocorrência</a>
+    </div>
+</article>
+
+<!-- ================= PAGINAÇÃO ================= -->
+<nav th:fragment="paginacao(page, anterior, proxima)" th:if="${page.totalPages > 1}"
+     class="d-flex justify-content-between align-items-center" aria-label="Paginação">
+    <a class="vp-btn" th:if="${page.hasPrevious()}" th:href="@{${anterior}}">&laquo; Anteriores</a>
+    <span th:unless="${page.hasPrevious()}"></span>
+    <span class="small text-muted"
+          th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}">Página</span>
+    <a class="vp-btn" th:if="${page.hasNext()}" th:href="@{${proxima}}">Próximas &raquo;</a>
+    <span th:unless="${page.hasNext()}"></span>
+</nav>
+
+<!-- ================= COPIAR LINK ================= -->
+<script th:fragment="copiar">
+    document.querySelectorAll('.js-copiar').forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            var url = window.location.origin + botao.getAttribute('data-caminho');
+            var copiar = navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject();
+            copiar.then(function () { botao.textContent = 'Link copiado!'; })
+                  .catch(function () { window.prompt('Copie o link:', url); });
+        });
+    });
+</script>
+
+</body>
+</html>

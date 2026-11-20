@@ -4,6 +4,11 @@ import com.vozpublica.vozpublica.denuncia.DenunciaNaoEncontradaException;
 import com.vozpublica.vozpublica.denuncia.DenunciaRepository;
 import com.vozpublica.vozpublica.user.User;
 import com.vozpublica.vozpublica.user.UserRepository;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,5 +81,24 @@ public class InteracaoService {
         return userRepository.findByEmail(email.trim().toLowerCase())
                 .map(User::getId)
                 .orElseThrow(() -> new IllegalStateException("Usuário autenticado não encontrado."));
+    }
+
+    public record Marcas(Set<Long> curtidas, Set<Long> incentivos) {
+        public static Marcas vazias() {
+            return new Marcas(Set.of(), Set.of());
+        }
+    }
+
+    /** Quais das ocorrências da lista este usuário já curtiu e incentivou. Visitante: tudo vazio. */
+    @Transactional(readOnly = true)
+    public Marcas marcas(Collection<Long> ids, String emailOuNull) {
+        if (emailOuNull == null || ids.isEmpty()) {
+            return Marcas.vazias();
+        }
+        return userRepository.findByEmail(emailOuNull.trim().toLowerCase())
+                .map(u -> new Marcas(
+                        new HashSet<>(curtidaRepository.idsCurtidos(u.getId(), ids)),
+                        new HashSet<>(incentivoRepository.idsIncentivadosConsolidado(u.getId(), ids))))
+                .orElse(Marcas.vazias());
     }
 }

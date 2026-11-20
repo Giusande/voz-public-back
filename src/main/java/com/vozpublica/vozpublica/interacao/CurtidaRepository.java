@@ -27,4 +27,7 @@ public interface CurtidaRepository extends JpaRepository<Curtida, Long> {
     @Query("SELECT new com.vozpublica.vozpublica.shared.ContagemPorDenuncia(c.denunciaId, COUNT(c)) "
             + "FROM Curtida c WHERE c.denunciaId IN :ids GROUP BY c.denunciaId")
     List<ContagemPorDenuncia> contarPorDenuncia(@Param("ids") Collection<Long> ids);
+
+    @Query("SELECT c.denunciaId FROM Curtida c WHERE c.usuarioId = :usuarioId AND c.denunciaId IN :ids")
+    List<Long> idsCurtidos(@Param("usuarioId") Long usuarioId, @Param("ids") Collection<Long> ids);
 }

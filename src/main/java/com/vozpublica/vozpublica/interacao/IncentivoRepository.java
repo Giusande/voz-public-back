@@ -40,4 +40,11 @@ public interface IncentivoRepository extends JpaRepository<Incentivo, Long> {
             + "WHERE d.id IN :ids AND (x.id = d.id OR x.duplicadaDeId = d.id) AND i.denunciaId = x.id "
             + "GROUP BY d.id")
     List<ContagemPorDenuncia> contarConsolidadoPorDenuncia(@Param("ids") Collection<Long> ids);
+
+    /** Ocorrências da lista que o usuário apoiou diretamente ou por qualquer duplicada agrupada a elas. */
+    @Query("SELECT DISTINCT d.id FROM Denuncia d, Incentivo i "
+            + "WHERE d.id IN :ids AND i.usuarioId = :usuarioId "
+            + "AND (i.denunciaId = d.id OR i.denunciaId IN "
+            + "(SELECT f.id FROM Denuncia f WHERE f.duplicadaDeId = d.id))")
+    List<Long> idsIncentivadosConsolidado(@Param("usuarioId") Long usuarioId, @Param("ids") Collection<Long> ids);
 }
