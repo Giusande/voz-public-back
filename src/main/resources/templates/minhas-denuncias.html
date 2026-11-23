@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -7,23 +6,24 @@
 
     <title>Minhas denúncias - Voz Pública</title>
 
-    <th:block th:replace="~{layout-fragmentos :: headComum('Minhas denúncias')}"></th:block>
+    <th:block
+      th:replace="~{layout-fragmentos :: headComum('Minhas denúncias')}"
+    ></th:block>
   </head>
 
   <body>
-
     <!-- TOPBAR -->
     <div th:replace="~{layout-fragmentos :: topbar(true)}"></div>
 
     <!-- LAYOUT PRINCIPAL -->
     <div class="vp-grid vp-grid--3">
-
       <!-- SIDEBAR -->
-      <div th:replace="~{layout-fragmentos :: sidebar(true, 'minhas-denuncias', '')}"></div>
+      <div
+        th:replace="~{layout-fragmentos :: sidebar(true, 'minhas-denuncias', '')}"
+      ></div>
 
       <!-- CONTEÚDO PRINCIPAL -->
       <main class="py-4" th:with="page=${v.page()}">
-
         <h1 class="h3 mb-1">Minhas denúncias</h1>
 
         <p
@@ -40,11 +40,7 @@
           th:text="${mensagem}"
         ></div>
 
-        <div
-          class="alert alert-danger"
-          th:if="${erro}"
-          th:text="${erro}"
-        ></div>
+        <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
 
         <!-- ESTADO VAZIO -->
         <p class="text-muted" th:if="${page.empty}">
@@ -53,60 +49,50 @@
         </p>
 
         <!-- LISTAGEM DE DENÚNCIAS -->
-        <article
-          class="card mb-3 shadow-sm"
-          th:each="d : ${page.content}"
-        >
+        <article class="card mb-3 shadow-sm" th:each="d : ${page.content}">
           <div class="card-body">
-
             <!-- STATUS E CATEGORIA -->
             <div class="d-flex flex-wrap gap-1 mb-2">
-
               <span
                 class="badge"
                 th:classappend="${d.status.classeCor}"
                 th:text="${d.status.rotulo}"
-              >Situação</span>
+                >Situação</span
+              >
 
               <span
                 class="badge text-bg-light border"
                 th:text="${d.categoria.nome}"
-              >Categoria</span>
+                >Categoria</span
+              >
 
-              <span
-                class="badge text-bg-danger"
-                th:if="${d.oculta}"
-              >Oculta pela moderação</span>
-
+              <span class="badge text-bg-danger" th:if="${d.oculta}"
+                >Oculta pela moderação</span
+              >
             </div>
 
             <!-- TÍTULO -->
             <h2 class="h6 mb-1">
-
               <a
                 th:if="${!d.oculta}"
                 th:href="@{/denuncias/{id}(id=${d.id})}"
                 class="text-decoration-none"
                 th:text="${d.titulo}"
-              >Título</a>
+                >Título</a
+              >
 
-              <span
-                th:if="${d.oculta}"
-                th:text="${d.titulo}"
-              >Título</span>
-
+              <span th:if="${d.oculta}" th:text="${d.titulo}">Título</span>
             </h2>
 
             <!-- LOCALIZAÇÃO E DATA -->
             <p class="small text-muted mb-2">
-
               <span th:text="${d.bairro}">Bairro</span>
               · registrada em
 
               <span
                 th:text="${#temporals.format(d.dataCriacao, 'dd/MM/yyyy HH:mm')}"
-              >data</span>
-
+                >data</span
+              >
             </p>
 
             <!-- PEDIDOS DE INFORMAÇÕES ADICIONAIS -->
@@ -114,12 +100,10 @@
               th:if="${v.solicitacoes().containsKey(d.id)}"
               th:with="lista=${v.solicitacoes().get(d.id)}"
             >
-
               <div
                 class="alert alert-warning py-2 small"
                 th:if="${lista.get(0).aberta}"
               >
-
                 <strong>A equipe pediu mais informações:</strong>
 
                 <div
@@ -134,7 +118,6 @@
                   method="post"
                   class="mt-2"
                 >
-
                   <textarea
                     name="resposta"
                     rows="3"
@@ -145,16 +128,14 @@
                   ></textarea>
 
                   <div class="form-text mb-1">
-                    A resposta é vista só por você e pela equipe.
-                    Não inclua dados pessoais desnecessários.
+                    A resposta é vista só por você e pela equipe. Não inclua
+                    dados pessoais desnecessários.
                   </div>
 
                   <button type="submit" class="btn btn-primary btn-sm">
                     Enviar resposta
                   </button>
-
                 </form>
-
               </div>
 
               <!-- HISTÓRICO DE SOLICITAÇÕES -->
@@ -162,15 +143,9 @@
                 class="small mb-2"
                 th:if="${!lista.get(0).aberta or lista.size() > 1}"
               >
-
                 <summary>Pedidos de informação anteriores</summary>
 
-                <div
-                  class="mt-1"
-                  th:each="s : ${lista}"
-                  th:if="${!s.aberta}"
-                >
-
+                <div class="mt-1" th:each="s : ${lista}" th:if="${!s.aberta}">
                   <div>
                     <strong>Pedido:</strong>
                     <span th:text="${s.mensagem}">mensagem</span>
@@ -180,43 +155,34 @@
                     <strong>Sua resposta:</strong>
                     <span th:text="${s.resposta}">resposta</span>
                   </div>
-
                 </div>
-
               </details>
-
             </div>
 
             <!-- OCORRÊNCIA AGRUPADA -->
             <div class="alert alert-info py-2 small" th:if="${d.agrupada}">
-
               Agrupada à ocorrência
 
               <span th:with="pr=${v.principais().get(d.duplicadaDeId)}">
-
                 <a
                   th:if="${pr != null and !pr.oculta}"
                   th:href="@{/denuncias/{id}(id=${pr.id})}"
                   th:text="'#' + ${pr.id}"
-                >#0</a>
+                  >#0</a
+                >
 
                 <span
                   th:if="${pr == null or pr.oculta}"
                   th:text="'#' + ${d.duplicadaDeId}"
-                >#0</span>
+                  >#0</span
+                >
 
                 <span th:if="${pr != null and !pr.oculta}">
-
                   — situação da principal:
 
-                  <strong th:text="${pr.status.rotulo}">
-                    Situação
-                  </strong>
-
+                  <strong th:text="${pr.status.rotulo}"> Situação </strong>
                 </span>
-
               </span>
-
             </div>
 
             <!-- ENCAMINHAMENTO PÚBLICO -->
@@ -225,18 +191,14 @@
               th:if="${v.encaminhamentos().containsKey(d.id) and !d.agrupada}"
               th:with="enc=${v.encaminhamentos().get(d.id)}"
             >
-
               Responsável atual:
 
-              <strong th:text="${enc.unidade.nome}">
-                Unidade
-              </strong>
+              <strong th:text="${enc.unidade.nome}"> Unidade </strong>
 
               <span
                 th:if="${enc.unidade.pai != null}"
                 th:text="'(' + ${enc.unidade.pai.nome} + ')'"
               ></span>
-
             </p>
 
             <!-- SEM ENCAMINHAMENTO -->
@@ -252,8 +214,8 @@
               class="small text-success mb-1"
               th:if="${d.status.name() == 'RESOLVIDA' and !d.oculta}"
             >
-              Marcada como resolvida.
-              Veja as evidências na página da ocorrência.
+              Marcada como resolvida. Veja as evidências na página da
+              ocorrência.
             </p>
 
             <!-- CONTADORES -->
@@ -265,21 +227,17 @@
             >
               contadores
             </p>
-
           </div>
 
           <!-- RODAPÉ DO CARD -->
           <div class="card-footer bg-white" th:if="${!d.oculta}">
-
             <a
               th:href="@{/denuncias/{id}(id=${d.id})}"
               class="btn btn-outline-primary btn-sm"
             >
               Ver acompanhamento completo
             </a>
-
           </div>
-
         </article>
 
         <!-- PAGINAÇÃO -->
@@ -287,7 +245,6 @@
           class="d-flex justify-content-between"
           th:if="${page.totalPages > 1}"
         >
-
           <a
             class="btn btn-outline-secondary btn-sm"
             th:if="${page.hasPrevious()}"
@@ -314,12 +271,8 @@
           </a>
 
           <span th:unless="${page.hasNext()}"></span>
-
         </nav>
-
       </main>
-
     </div>
-
   </body>
 </html>
