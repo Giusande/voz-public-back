@@ -5,7 +5,6 @@ import com.vozpublica.vozpublica.categoria.CategoriaRepository;
 import com.vozpublica.vozpublica.denuncia.Denuncia;
 import com.vozpublica.vozpublica.denuncia.DenunciaRepository;
 import com.vozpublica.vozpublica.denuncia.Prioridade;
-import com.vozpublica.vozpublica.unidade.TipoUnidade;
 import com.vozpublica.vozpublica.unidade.Unidade;
 import com.vozpublica.vozpublica.unidade.UnidadeRepository;
 import com.vozpublica.vozpublica.user.Role;
