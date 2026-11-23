@@ -136,6 +136,76 @@
     .vp-btn--curtiu{background:#fdecea;border-color:#f4b5ae;color:#b42318}
     .vp-btn--curtiu:hover{background:#fbdcd8;color:#b42318}
     .vp-btn--incentivou{background:#fff6dd;border-color:#f0d58a;color:#8a6100;opacity:1}
+
+    /* ===== ícones no lugar de emojis ===== */
+    .vp-btn{gap:.4rem}
+    .vp-ponto{font-size:.5rem;vertical-align:middle}
+    .vp-meta i{margin-right:.2rem}
+
+    /* ===== sidebar da equipe e da administração ===== */
+    .vp-usuario{display:flex;align-items:center;gap:.5rem;padding:.2rem .65rem .6rem}
+    .vp-papel{font-size:.72rem;font-weight:700;padding:.15rem .55rem;border-radius:1rem;background:#eef1f5;color:#475467}
+    .vp-papel--equipe{background:var(--vp-azul-cl);color:var(--vp-azul)}
+    .vp-papel--admin{background:#fdecea;color:#b42318}
+    .vp-grupo{margin-top:.9rem;border:1px solid var(--vp-borda);border-radius:.75rem}
+    .vp-grupo>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;
+                      padding:.55rem .7rem;font-weight:700;font-size:.85rem}
+    .vp-grupo>summary::-webkit-details-marker{display:none}
+    .vp-grupo>summary .vp-seta{margin-left:auto;font-size:.7rem;transition:transform .15s}
+    .vp-grupo[open]>summary .vp-seta{transform:rotate(180deg)}
+    .vp-grupo__corpo{padding:0 .35rem .45rem}
+    .vp-grupo--equipe{border-color:#c9dafc;background:#f8faff}
+    .vp-grupo--equipe>summary{color:var(--vp-azul)}
+    .vp-grupo--admin{border-color:#f4c7c2;background:#fffafa}
+    .vp-grupo--admin>summary{color:#b42318}
+    .vp-sub{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vp-suave);margin:.6rem .65rem .2rem}
+
+        /* ===== topbar em duas linhas ===== */
+    .vp-topbar{padding:0;margin-bottom:1.25rem;box-shadow:0 1px 3px rgba(16,24,40,.06)}
+    .vp-topbar__in{padding:1rem 1.25rem .75rem;min-height:4.25rem}
+    .vp-logo{font-size:1.5rem}
+    .vp-topbar .vp-btn{padding:.55rem 1.1rem}
+    .vp-topbar__nav{border-top:1px solid var(--vp-borda);background:#fbfcfe}
+    .vp-topbar__nav-in{max-width:1280px;margin:0 auto;padding:.4rem 1.25rem;display:flex;align-items:center;
+                       gap:.25rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .vp-topbar__nav-in::-webkit-scrollbar{display:none}
+    .vp-navlink{display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;padding:.5rem .8rem;
+                border-radius:.55rem;font-size:.92rem;font-weight:500;color:var(--vp-suave);text-decoration:none;
+                background:none;border:0;cursor:pointer;flex:none}
+    .vp-navlink:hover{background:#eef2f8;color:var(--vp-texto)}
+    .vp-navlink.ativo{background:var(--vp-azul-cl);color:var(--vp-azul);font-weight:700}
+    .vp-navlink .vp-badge{margin-left:.1rem}
+    .vp-navsep{width:1px;height:1.4rem;background:var(--vp-borda);margin:0 .4rem;flex:none}
+    .vp-navlink--sair{margin-left:auto}
+    .vp-navform{margin:0;display:flex;margin-left:auto;flex:none}
+    @media(max-width:575px){
+        .vp-topbar__in{padding:.75rem .85rem .6rem;min-height:3.5rem;gap:.5rem}
+        .vp-topbar__nav-in{padding:.3rem .6rem}
+        .vp-navlink{padding:.45rem .65rem;font-size:.88rem}
+    }
+
+    /* sem sidebar (cidadão e visitante): coluna única, largura total */
+    .vp-grid--solo{grid-template-columns:minmax(0,1fr)!important}
+    @media(min-width:1200px){.vp-grid--3.vp-grid--solo{grid-template-columns:minmax(0,1fr) 300px!important}}
+    .vp-sidebar{top:0}
+    @media(min-width:992px){.vp-sidebar--fixa{top:130px;max-height:calc(100vh - 145px)}}
+
+        /* ===== sidebar da equipe: borda esquerda, centralizada na vertical ===== */
+    @media(min-width:992px){
+        .vp-sidebar--fixa{
+            position:fixed;left:.75rem;top:50%;transform:translateY(-50%);
+            width:230px;max-height:calc(100vh - 190px);overflow-y:auto;
+            align-self:auto;z-index:1020;
+            background:#fff;border:1px solid var(--vp-borda);border-radius:.85rem;
+            padding:.6rem;box-shadow:0 4px 16px rgba(16,24,40,.10)
+        }
+        /* a sidebar saiu da grade: o conteúdo cede espaço à esquerda e ocupa a 1ª coluna */
+        .vp-grid--2:has(.vp-sidebar--fixa){grid-template-columns:minmax(0,1fr);padding-left:262px}
+        .vp-grid--3:has(.vp-sidebar--fixa){grid-template-columns:minmax(0,1fr);padding-left:262px}
+    }
+    @media(min-width:1200px){
+        .vp-grid--3:has(.vp-sidebar--fixa){grid-template-columns:minmax(0,1fr) 300px}
+    }
 </style>
 
 <!-- ================= CABEÇALHO (meta, Bootstrap, tema) ================= -->
@@ -148,79 +218,128 @@
     <style th:replace="~{layout-fragmentos :: estilo}"></style>
 </th:block>
 
-<!-- ================= BARRA SUPERIOR ================= -->
 <header th:fragment="topbar(lateral)" class="vp-topbar">
     <div class="vp-topbar__in">
-        <a href="#menu-lateral" class="vp-hamb" th:classappend="${lateral} ? 'vp-hamb--fixa'"
-           aria-label="Abrir menu">&#9776;</a>
+        <a th:if="${navEquipe}" href="#menu-lateral" class="vp-hamb" th:classappend="${lateral} ? 'vp-hamb--fixa'"
+           aria-label="Abrir menu da equipe"><i class="bi bi-list"></i></a>
         <a th:href="@{/}" class="vp-logo"><span>Voz</span> Pública</a>
         <div class="vp-topbar__acoes">
-            <a th:if="${navLogado}" th:href="@{/perfil}" class="vp-btn d-none d-sm-inline-flex">Meu perfil</a>
+            <a th:if="${navLogado}" th:href="@{/perfil}" class="vp-btn d-none d-sm-inline-flex">
+                <i class="bi bi-person-circle"></i> Meu perfil</a>
             <a th:unless="${navLogado}" th:href="@{/login}" class="vp-btn">Entrar</a>
             <a th:unless="${navLogado}" th:href="@{/cadastro}" class="vp-btn d-none d-sm-inline-flex">Cadastrar</a>
             <a th:href="@{/denuncias/nova}" class="vp-btn vp-btn--pri">+ Nova denúncia</a>
         </div>
     </div>
+
+    <!-- segunda linha: navegação para todas as páginas -->
+    <nav class="vp-topbar__nav" aria-label="Navegação principal">
+        <div class="vp-topbar__nav-in">
+            <a th:href="@{/}" class="vp-navlink"
+               th:classappend="${(navCaminho == '/' or navCaminho == '/denuncias') and #strings.isEmpty(param.status) and #strings.isEmpty(param.prioridade)} ? 'ativo'">
+                <i class="bi bi-house-door-fill text-primary"></i><span>Feed</span></a>
+            <a th:if="${navLogado}" th:href="@{/minhas-denuncias}" class="vp-navlink"
+               th:classappend="${#strings.startsWith(navCaminho, '/minhas-denuncias')} ? 'ativo'">
+                <i class="bi bi-journal-text" style="color:#5b3fc4"></i><span>Minhas denúncias</span></a>
+            <a th:if="${navLogado}" th:href="@{/notificacoes}" class="vp-navlink"
+               th:classappend="${#strings.startsWith(navCaminho, '/notificacoes')} ? 'ativo'">
+                <i class="bi bi-bell-fill" style="color:#b54708"></i><span>Notificações</span>
+                <span th:if="${navNaoLidas.total > 0}" id="nav-nao-lidas" class="vp-badge"
+                      th:text="${navNaoLidas.total}">0</span></a>
+            <a th:href="@{/mapa}" class="vp-navlink"
+               th:classappend="${#strings.startsWith(navCaminho, '/mapa')} ? 'ativo'">
+                <i class="bi bi-geo-alt-fill" style="color:#0a7a4a"></i><span>Mapa de problemas</span></a>
+            <a th:href="@{/transparencia}" class="vp-navlink"
+               th:classappend="${#strings.startsWith(navCaminho, '/transparencia')} ? 'ativo'">
+                <i class="bi bi-bar-chart-fill" style="color:#0b7a75"></i><span>Transparência</span></a>
+
+            <span class="vp-navsep" aria-hidden="true"></span>
+
+            <a th:href="@{/(prioridade='URGENTE')}" class="vp-navlink"
+               th:classappend="${(navCaminho == '/' or navCaminho == '/denuncias') and param.prioridade != null and param.prioridade[0] == 'URGENTE'} ? 'ativo'">
+                <i class="bi bi-exclamation-triangle-fill" style="color:#b42318"></i><span>Urgentes</span></a>
+            <a th:href="@{/(status='EM_EXECUCAO')}" class="vp-navlink"
+               th:classappend="${(navCaminho == '/' or navCaminho == '/denuncias') and param.status != null and param.status[0] == 'EM_EXECUCAO'} ? 'ativo'">
+                <i class="bi bi-tools" style="color:#b54708"></i><span>Em andamento</span></a>
+            <a th:href="@{/(status='RESOLVIDA')}" class="vp-navlink"
+               th:classappend="${(navCaminho == '/' or navCaminho == '/denuncias') and param.status != null and param.status[0] == 'RESOLVIDA'} ? 'ativo'">
+                <i class="bi bi-check-circle-fill" style="color:#0a7a4a"></i><span>Resolvidas</span></a>
+
+            <form th:if="${navLogado}" th:action="@{/logout}" method="post" class="vp-navform">
+                <button type="submit" class="vp-navlink"><i class="bi bi-box-arrow-right"></i><span>Sair</span></button>
+            </form>
+        </div>
+    </nav>
 </header>
 
 <!-- ================= MENU LATERAL ================= -->
-<aside th:fragment="sidebar(fixa, ativo, filtroAtivo)" id="menu-lateral" class="vp-sidebar vp-nav"
-       th:classappend="${fixa} ? 'vp-sidebar--fixa'" aria-label="Menu principal">
+<aside th:fragment="sidebar(fixa, ativo, filtroAtivo)" th:if="${navEquipe}" id="menu-lateral"
+       class="vp-sidebar vp-nav" th:classappend="${fixa} ? 'vp-sidebar--fixa'"
+       aria-label="Menu da equipe">
     <a href="#" class="vp-fechar"><i class="vp-ic ic-cinza bi bi-x-lg"></i><span>Fechar menu</span></a>
 
-    <a th:href="@{/}" th:classappend="${ativo == 'feed'} ? 'ativo'">
-        <i class="vp-ic ic-azul bi bi-house-door-fill"></i><span>Feed</span></a>
-    <a th:if="${navLogado}" th:href="@{/minhas-denuncias}">
-        <i class="vp-ic ic-roxo bi bi-journal-text"></i><span>Minhas denúncias</span></a>
-    <a th:if="${navLogado}" th:href="@{/notificacoes}">
-        <i class="vp-ic ic-ambar bi bi-bell-fill"></i><span>Notificações</span>
-        <span th:if="${navNaoLidas.total > 0}" id="nav-nao-lidas" class="vp-badge"
-              th:text="${navNaoLidas.total}">0</span></a>
-    <a th:if="${navLogado}" th:href="@{/perfil}">
-        <i class="vp-ic ic-cinza bi bi-person-circle"></i><span>Meu perfil</span></a>
-    <a th:href="@{/mapa}"><i class="vp-ic ic-verde bi bi-geo-alt-fill"></i><span>Mapa de problemas</span></a>
-    <a th:href="@{/transparencia}"><i class="vp-ic ic-teal bi bi-bar-chart-fill"></i><span>Transparência</span></a>
+    <div class="vp-usuario">
+        <span class="vp-papel" th:text="${navPapel}"
+              th:classappend="${navAdmin} ? 'vp-papel--admin' : 'vp-papel--equipe'">Servidor</span>
+    </div>
 
-    <h2>Filtrar</h2>
-    <a th:href="@{/}" th:classappend="${filtroAtivo == 'todas'} ? 'ativo'">
-        <i class="vp-ic ic-cinza bi bi-list-ul"></i><span>Todas</span></a>
-    <a th:href="@{/(prioridade='URGENTE')}" th:classappend="${filtroAtivo == 'urgentes'} ? 'ativo'">
-        <i class="vp-ic ic-vermelho bi bi-exclamation-triangle-fill"></i><span>Urgentes</span></a>
-    <a th:href="@{/(status='EM_EXECUCAO')}" th:classappend="${filtroAtivo == 'andamento'} ? 'ativo'">
-        <i class="vp-ic ic-ambar bi bi-tools"></i><span>Em andamento</span></a>
-    <a th:href="@{/(status='RESOLVIDA')}" th:classappend="${filtroAtivo == 'resolvidas'} ? 'ativo'">
-        <i class="vp-ic ic-verde bi bi-check-circle-fill"></i><span>Resolvidas</span></a>
+    <!-- ===== EQUIPE (servidor e administrador) ===== -->
+    <details class="vp-grupo vp-grupo--equipe" open>
+        <summary><i class="bi bi-clipboard2-pulse-fill"></i> Gestão da equipe
+            <i class="bi bi-chevron-down vp-seta"></i></summary>
+        <div class="vp-grupo__corpo">
+            <a th:href="@{/gestao/dashboard}"
+               th:classappend="${#strings.startsWith(navCaminho, '/gestao/dashboard')} ? 'ativo'">
+                <i class="vp-ic ic-azul bi bi-speedometer2"></i><span>Dashboard</span></a>
+            <a th:href="@{/gestao/atrasadas}"
+               th:classappend="${#strings.startsWith(navCaminho, '/gestao/atrasadas')} ? 'ativo'">
+                <i class="vp-ic ic-vermelho bi bi-alarm-fill"></i><span>Atrasadas</span>
+                <span th:if="${navAtrasadas.total > 0}" id="nav-atrasadas" class="vp-badge"
+                      th:text="${navAtrasadas.total}">0</span></a>
+            <a th:href="@{/gestao/reavaliacao}"
+               th:classappend="${#strings.startsWith(navCaminho, '/gestao/reavaliacao')} ? 'ativo'">
+                <i class="vp-ic ic-ambar bi bi-arrow-repeat"></i><span>Reavaliação</span>
+                <span th:if="${navReavaliacao.total > 0}" id="nav-reavaliacao" class="vp-badge"
+                      th:text="${navReavaliacao.total}">0</span></a>
+            <a th:href="@{/gestao/relatorios}"
+               th:classappend="${#strings.startsWith(navCaminho, '/gestao/relatorios')} ? 'ativo'">
+                <i class="vp-ic ic-azul bi bi-file-earmark-bar-graph-fill"></i><span>Relatórios</span></a>
+        </div>
+    </details>
 
-    <h2 th:if="${navEquipe}">Equipe</h2>
-    <a th:if="${navEquipe}" th:href="@{/gestao/dashboard}">
-        <i class="vp-ic ic-azul bi bi-speedometer2"></i><span>Dashboard</span></a>
-    <a th:if="${navEquipe}" th:href="@{/gestao/relatorios}">
-        <i class="vp-ic ic-azul bi bi-file-earmark-bar-graph-fill"></i><span>Relatórios</span></a>
-    <a th:if="${navEquipe}" th:href="@{/gestao/atrasadas}">
-        <i class="vp-ic ic-vermelho bi bi-alarm-fill"></i><span>Atrasadas</span></a>
-    <a th:if="${navEquipe}" th:href="@{/gestao/reavaliacao}">
-        <i class="vp-ic ic-ambar bi bi-arrow-repeat"></i><span>Reavaliação</span></a>
+    <!-- ===== ADMINISTRAÇÃO (só administrador) ===== -->
+    <details class="vp-grupo vp-grupo--admin" th:if="${navAdmin}" open>
+        <summary><i class="bi bi-shield-lock-fill"></i> Administração
+            <i class="bi bi-chevron-down vp-seta"></i></summary>
+        <div class="vp-grupo__corpo">
+            <div class="vp-sub">Moderação e contas</div>
+            <a th:href="@{/admin/moderacao}"
+               th:classappend="${#strings.startsWith(navCaminho, '/admin/moderacao')} ? 'ativo'">
+                <i class="vp-ic ic-vermelho bi bi-shield-exclamation"></i><span>Moderação</span>
+                <span th:if="${navModeracao.total > 0}" id="nav-moderacao" class="vp-badge"
+                      th:text="${navModeracao.total}">0</span></a>
+            <a th:href="@{/admin/usuarios}"
+               th:classappend="${#strings.startsWith(navCaminho, '/admin/usuarios')} ? 'ativo'">
+                <i class="vp-ic ic-roxo bi bi-people-fill"></i><span>Usuários</span></a>
+            <a th:href="@{/admin/auditoria}"
+               th:classappend="${#strings.startsWith(navCaminho, '/admin/auditoria')} ? 'ativo'">
+                <i class="vp-ic ic-cinza bi bi-clock-history"></i><span>Auditoria</span></a>
 
-    <h2 th:if="${navAdmin}">Administração</h2>
-    <a th:if="${navAdmin}" th:href="@{/admin/moderacao}">
-        <i class="vp-ic ic-vermelho bi bi-shield-exclamation"></i><span>Moderação</span></a>
-    <a th:if="${navAdmin}" th:href="@{/admin/usuarios}">
-        <i class="vp-ic ic-roxo bi bi-people-fill"></i><span>Usuários</span></a>
-    <a th:if="${navAdmin}" th:href="@{/admin/auditoria}">
-        <i class="vp-ic ic-cinza bi bi-clock-history"></i><span>Auditoria</span></a>
-    <a th:if="${navAdmin}" th:href="@{/admin/unidades}">
-        <i class="vp-ic ic-teal bi bi-building"></i><span>Unidades</span></a>
-    <a th:if="${navAdmin}" th:href="@{/admin/categorias}">
-        <i class="vp-ic ic-ambar bi bi-hourglass-split"></i><span>Prazos</span></a>
-
-    <form th:if="${navLogado}" th:action="@{/logout}" method="post" class="mt-3">
-        <button type="submit"><i class="vp-ic ic-cinza bi bi-box-arrow-right"></i><span>Sair</span></button>
-    </form>
+            <div class="vp-sub">Configuração</div>
+            <a th:href="@{/admin/unidades}"
+               th:classappend="${#strings.startsWith(navCaminho, '/admin/unidades')} ? 'ativo'">
+                <i class="vp-ic ic-teal bi bi-building"></i><span>Unidades</span></a>
+            <a th:href="@{/admin/categorias}"
+               th:classappend="${#strings.startsWith(navCaminho, '/admin/categorias')} ? 'ativo'">
+                <i class="vp-ic ic-ambar bi bi-hourglass-split"></i><span>Prazos</span></a>
+        </div>
+    </details>
 </aside>
 
 <!-- ================= SELO DE SITUAÇÃO ================= -->
-<span th:fragment="selo(status)" class="vp-tag" th:classappend="'vp-st-' + ${status.name()}"
-      th:text="'● ' + ${status.rotulo}">● Situação</span>
+<span th:fragment="selo(status)" class="vp-tag" th:classappend="'vp-st-' + ${status.name()}">
+    <i class="bi bi-circle-fill vp-ponto"></i> <span th:text="${status.rotulo}">Situação</span>
+</span>
 
 <!-- ================= CARD DO FEED ================= -->
 <article th:fragment="cartao(d, c, foto, curtiu, incentivou, voltar)" class="vp-card vp-post"
@@ -237,15 +356,17 @@
 
     <h2><a th:href="@{/denuncias/{id}(id=${d.id})}" th:text="${d.titulo}">Título</a></h2>
     <p class="vp-post__txt" th:text="${#strings.abbreviate(d.descricao, 180)}">Resumo</p>
-    <div class="small text-muted mb-2" th:if="${d.endereco != null}" th:text="'📍 ' + ${d.endereco}">Endereço</div>
+    <div class="small text-muted mb-2" th:if="${d.endereco != null}">
+        <i class="bi bi-geo-alt-fill"></i> <span th:text="${d.endereco}">Endereço</span>
+    </div>
 
     <a th:if="${foto != null}" th:href="@{/denuncias/{id}(id=${d.id})}">
         <img class="vp-post__foto" th:src="@{/fotos/{fid}(fid=${foto})}" alt="Foto da ocorrência" loading="lazy">
     </a>
 
     <div class="vp-tags">
-        <span class="vp-tag" th:text="${d.bairro} + ' · ' + ${d.regiao}">Bairro · Região</span>
-        <span class="vp-tag" th:text="${d.categoria.nome}">Categoria</span>
+        <span class="vp-tag"><i class="bi bi-geo-alt"></i> <span th:text="${d.bairro} + ' · ' + ${d.regiao}">Bairro · Região</span></span>
+        <span class="vp-tag"><i class="bi bi-tag"></i> <span th:text="${d.categoria.nome}">Categoria</span></span>
         <span class="vp-tag" th:with="p=${d.prioridadeOficial != null ? d.prioridadeOficial : d.prioridadeSugerida}"
               th:classappend="'vp-pr-' + ${p.name()}"
               th:title="${d.prioridadeOficial != null ? 'Prioridade oficial' : 'Prioridade sugerida pelo cidadão'}"
@@ -254,11 +375,11 @@
     </div>
 
     <div class="vp-meta">
-        <span title="Curtidas">♥ <b th:text="${c.curtidas()}">0</b></span>
-        <span title="Incentivos">📣 <b th:text="${c.incentivos()}">0</b></span>
-        <span title="Comentários">💬 <b th:text="${c.comentarios()}">0</b></span>
+        <span title="Curtidas"><i class="bi bi-heart-fill text-danger"></i><b th:text="${c.curtidas()}">0</b></span>
+        <span title="Incentivos"><i class="bi bi-megaphone-fill text-warning"></i><b th:text="${c.incentivos()}">0</b></span>
+        <span title="Comentários"><i class="bi bi-chat-dots-fill text-primary"></i><b th:text="${c.comentarios()}">0</b></span>
         <button type="button" class="vp-link js-copiar"
-                th:attr="data-caminho=@{/denuncias/{id}(id=${d.id})}">Copiar link</button>
+                th:attr="data-caminho=@{/denuncias/{id}(id=${d.id})}"><i class="bi bi-link-45deg"></i> Copiar link</button>
     </div>
 
     <div class="vp-acoes">
@@ -267,25 +388,31 @@
             <form th:action="@{/denuncias/{id}/curtir(id=${d.id})}" method="post">
                 <input type="hidden" name="voltar" th:value="${voltar}">
                 <button type="submit" class="vp-btn" th:classappend="${curtiu} ? 'vp-btn--curtiu'"
-                        th:attr="aria-pressed=${curtiu}"
-                        th:text="${curtiu} ? '♥ Curtido' : '♡ Curtir'">♡ Curtir</button>
+                        th:attr="aria-pressed=${curtiu}">
+                    <i class="bi" th:classappend="${curtiu} ? 'bi-heart-fill' : 'bi-heart'"></i>
+                    <span th:text="${curtiu} ? 'Curtido' : 'Curtir'">Curtir</span>
+                </button>
             </form>
             <form th:if="${!incentivou}" th:action="@{/denuncias/{id}/incentivar(id=${d.id})}" method="post">
                 <input type="hidden" name="voltar" th:value="${voltar}">
-                <button type="submit" class="vp-btn">📣 Incentivar</button>
+                <button type="submit" class="vp-btn"><i class="bi bi-megaphone"></i><span>Incentivar</span></button>
             </form>
             <div th:if="${incentivou}">
-                <button type="button" class="vp-btn vp-btn--incentivou" disabled>📣 Incentivado</button>
+                <button type="button" class="vp-btn vp-btn--incentivou" disabled>
+                    <i class="bi bi-megaphone-fill"></i><span>Incentivado</span></button>
             </div>
         </th:block>
 
         <!-- visitante: entra e volta à ocorrência -->
         <th:block th:unless="${navLogado}">
-            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">♡ Curtir</a>
-            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">📣 Incentivar</a>
+            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">
+                <i class="bi bi-heart"></i><span>Curtir</span></a>
+            <a class="vp-btn" th:href="@{/acesso(retorno=${'/denuncias/' + d.id}, destino='login')}">
+                <i class="bi bi-megaphone"></i><span>Incentivar</span></a>
         </th:block>
 
-        <a class="vp-btn" th:href="@{/denuncias/{id}(id=${d.id})}">Ver ocorrência</a>
+        <a class="vp-btn" th:href="@{/denuncias/{id}(id=${d.id})}">
+            <i class="bi bi-box-arrow-up-right"></i><span>Ver ocorrência</span></a>
     </div>
 </article>
 

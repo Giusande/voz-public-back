@@ -1,103 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Relatórios - Voz Pública</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-light">
-    <div th:replace="~{menu-fragmento :: menu}"></div>
-    <main class="container py-4" style="max-width: 1100px">
-      <nav class="mb-3 d-flex flex-wrap gap-2">
-        <a
-          th:href="@{/gestao/dashboard}"
-          class="btn btn-outline-secondary btn-sm"
-          >Dashboard</a
-        >
-        <a th:href="@{/gestao/relatorios}" class="btn btn-secondary btn-sm"
-          >Relatórios</a
-        >
-        <a
-          th:href="@{/gestao/atrasadas}"
-          class="btn btn-outline-secondary btn-sm"
-          >Atrasadas</a
-        >
-        <a th:href="@{/denuncias}" class="btn btn-outline-secondary btn-sm"
-          >Ocorrências</a
-        >
-      </nav>
+<head>
+    <th:block th:replace="~{layout-fragmentos :: headComum('Relatórios')}"></th:block>
+    <style th:replace="~{gestao-fragmentos :: estiloGestao}"></style>
+</head>
+<body>
+<div th:replace="~{menu-fragmento :: menuEquipe}"></div>
 
-      <h1 class="h4 mb-3">Relatórios</h1>
+<main class="gp">
+    <div class="gp-cab">
+        <span class="gp-cab__ic"><i class="bi bi-file-earmark-bar-graph-fill"></i></span>
+        <div>
+            <h1>Relatórios</h1>
+            <p>Agrupe as ocorrências e exporte os dados em CSV.</p>
+        </div>
+        <div class="gp-cab__acoes">
+            <a class="vp-btn" th:href="@{'/gestao/relatorios/agrupado.csv?' + ${filtro.queryString()}}">
+                <i class="bi bi-download"></i> CSV desta tabela</a>
+            <a class="vp-btn" th:href="@{'/gestao/relatorios/ocorrencias.csv?' + ${filtro.queryString()}}">
+                <i class="bi bi-download"></i> CSV ocorrência por ocorrência</a>
+        </div>
+    </div>
 
-      <div class="alert alert-danger" th:if="${param.erro}">
-        Há ocorrências demais nesse filtro para exportar (máximo de 50.000).
-        Refine o período ou os filtros.
-      </div>
+    <div class="alert alert-danger" th:if="${param.erro}">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Há ocorrências demais nesse filtro para exportar (máximo de 50.000). Refine o período ou os filtros.
+    </div>
 
-      <div
-        th:replace="~{relatorio-filtro-fragmento :: filtro('/gestao/relatorios', true)}"
-      ></div>
+    <div th:replace="~{relatorio-filtro-fragmento :: filtro('/gestao/relatorios', true)}"></div>
 
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <a
-          class="btn btn-outline-primary btn-sm"
-          th:href="@{'/gestao/relatorios/agrupado.csv?' + ${filtro.queryString()}}"
-          >Baixar CSV (esta tabela)</a
-        >
-        <a
-          class="btn btn-outline-primary btn-sm"
-          th:href="@{'/gestao/relatorios/ocorrencias.csv?' + ${filtro.queryString()}}"
-          >Baixar CSV (ocorrência por ocorrência)</a
-        >
-      </div>
-      <p class="text-muted small">
-        Os arquivos não incluem dados dos cidadãos (nem autor, nem e-mail). Cada
-        exportação fica registrada na auditoria. Ocorrências ocultas e
-        duplicadas ficam de fora.
-      </p>
+    <p class="text-muted small">
+        <i class="bi bi-shield-check"></i>
+        Os arquivos não incluem dados dos cidadãos (nem autor, nem e-mail). Cada exportação fica registrada na
+        auditoria. Ocorrências ocultas e duplicadas ficam de fora.
+    </p>
 
-      <p class="text-muted" th:if="${linhas.empty}">
+    <div class="gp-card gp-vazio" th:if="${linhas.empty}">
+        <i class="bi bi-inbox"></i>
         Nenhuma ocorrência encontrada.
-      </p>
+    </div>
 
-      <div class="table-responsive" th:if="${!linhas.empty}">
-        <table class="table table-sm align-middle bg-white">
-          <thead>
-            <tr>
-              <th th:text="${filtro.dimensao.rotulo}">Grupo</th>
-              <th>Total</th>
-              <th>Pendentes</th>
-              <th>Em análise</th>
-              <th>Encam.</th>
-              <th>Em execução</th>
-              <th>Resolvidas</th>
-              <th>Indef.</th>
-              <th>Atrasadas</th>
-              <th>% resolução</th>
-              <th>Tempo médio (dias)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="l : ${linhas}">
-              <td th:text="${l.grupo()}">Grupo</td>
-              <td th:text="${l.indicadores().total()}">0</td>
-              <td th:text="${l.indicadores().pendentes()}">0</td>
-              <td th:text="${l.indicadores().emAnalise()}">0</td>
-              <td th:text="${l.indicadores().encaminhadas()}">0</td>
-              <td th:text="${l.indicadores().emExecucao()}">0</td>
-              <td th:text="${l.indicadores().resolvidas()}">0</td>
-              <td th:text="${l.indicadores().indeferidas()}">0</td>
-              <td th:text="${l.indicadores().atrasadas()}">0</td>
-              <td th:text="${l.indicadores().percentualTexto()} + '%'">0%</td>
-              <td th:text="${l.indicadores().tempoMedioTexto()}">—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </body>
+    <div class="gp-card p-0" th:if="${!linhas.empty}">
+        <div class="gp-rolagem" style="max-height:70vh;overflow-y:auto">
+            <table class="gp-tabela">
+                <thead>
+                <tr>
+                    <th th:text="${filtro.dimensao.rotulo}">Grupo</th>
+                    <th class="num">Total</th><th class="num">Pendentes</th><th class="num">Em análise</th>
+                    <th class="num">Encam.</th><th class="num">Em execução</th><th class="num">Resolvidas</th>
+                    <th class="num">Indef.</th><th class="num">Atrasadas</th>
+                    <th style="min-width:9rem">% resolução</th><th class="num">Tempo médio (dias)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${linhas}" th:with="i=${l.indicadores()}">
+                    <td class="fw-semibold" th:text="${l.grupo()}">Grupo</td>
+                    <td class="num" th:text="${i.total()}">0</td>
+                    <td class="num" th:text="${i.pendentes()}">0</td>
+                    <td class="num" th:text="${i.emAnalise()}">0</td>
+                    <td class="num" th:text="${i.encaminhadas()}">0</td>
+                    <td class="num" th:text="${i.emExecucao()}">0</td>
+                    <td class="num" th:text="${i.resolvidas()}">0</td>
+                    <td class="num" th:text="${i.indeferidas()}">0</td>
+                    <td class="num">
+                        <span class="gp-chip gp-chip--verm" th:if="${i.atrasadas() > 0}" th:text="${i.atrasadas()}">0</span>
+                        <span class="text-muted" th:if="${i.atrasadas() == 0}">0</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="gp-trilho gp-trilho--verde flex-grow-1">
+                                <div th:style="'width:' + ${i.percentualResolucao()} + '%'"></div>
+                            </div>
+                            <span class="small" th:text="${i.percentualTexto()} + '%'">0%</span>
+                        </div>
+                    </td>
+                    <td class="num" th:text="${i.tempoMedioTexto()}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
 </html>

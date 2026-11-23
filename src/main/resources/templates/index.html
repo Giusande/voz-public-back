@@ -1,175 +1,175 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <th:block
-      th:replace="~{layout-fragmentos :: headComum('Ocorrências do Recife')}"
-    ></th:block>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
-    />
-  </head>
-  <body>
-    <div th:replace="~{layout-fragmentos :: topbar(true)}"></div>
+<head>
+    <th:block th:replace="~{layout-fragmentos :: headComum('Ocorrências do Recife')}"></th:block>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div th:replace="~{layout-fragmentos :: topbar(true)}"></div>
 
-    <div
-      class="vp-grid vp-grid--3"
-      th:with="manter=${(filtro.status != null ? '&status=' + filtro.status : '') + (filtro.prioridade != null ? '&prioridade=' + filtro.prioridade : '')},
-              filtroAtivo=${filtro.prioridade != null and filtro.prioridade.name() == 'URGENTE' ? 'urgentes' : (filtro.status != null and filtro.status.name() == 'EM_EXECUCAO' ? 'andamento' : (filtro.status != null and filtro.status.name() == 'RESOLVIDA' ? 'resolvidas' : (filtro.prioridade == null and filtro.status == null ? 'todas' : '')))}"
-    >
-      <div
-        th:replace="~{layout-fragmentos :: sidebar(true, 'feed', ${filtroAtivo})}"
-      ></div>
+<div class="vp-grid vp-grid--3" th:classappend="${!navEquipe} ? 'vp-grid--solo'"
+     th:with="filtroAtivo=${filtro.prioridade != null and filtro.prioridade.name() == 'URGENTE' ? 'urgentes' : (filtro.status != null and filtro.status.name() == 'EM_EXECUCAO' ? 'andamento' : (filtro.status != null and filtro.status.name() == 'RESOLVIDA' ? 'resolvidas' : (filtro.prioridade == null and filtro.status == null ? 'todas' : '')))}">
 
-      <!-- ===== FEED ===== -->
-      <main>
+    <div th:replace="~{layout-fragmentos :: sidebar(true, 'feed', ${filtroAtivo})}"></div>
+
+    <!-- ===== FEED ===== -->
+    <main>
         <section class="vp-card vp-cab mb-3">
-          <h1>Ocorrências do Recife</h1>
-          <p>
-            Encontre problemas urbanos, acompanhe soluções e incentive
-            ocorrências que também afetam você.
-          </p>
-          <div class="vp-pills">
-            <a
-              class="vp-pill"
-              th:classappend="${filtro.ordem.name() == 'RECENTES'} ? 'ativo'"
-              th:href="@{'/?ordem=RECENTES' + ${manter}}"
-              >Mais recentes</a
-            >
-            <a
-              class="vp-pill"
-              th:classappend="${filtro.ordem.name() == 'INCENTIVADAS'} ? 'ativo'"
-              th:href="@{'/?ordem=INCENTIVADAS' + ${manter}}"
-              >Mais incentivadas</a
-            >
-            <a
-              class="vp-pill"
-              th:classappend="${filtro.ordem.name() == 'URGENTES'} ? 'ativo'"
-              th:href="@{'/?ordem=URGENTES' + ${manter}}"
-              >Urgentes</a
-            >
-            <a class="vp-link" th:href="@{/denuncias}">Filtros avançados</a>
-          </div>
+            <h1>Ocorrências do Recife</h1>
+            <p>Encontre problemas urbanos, acompanhe soluções e incentive ocorrências que também afetam você.</p>
+
+            <div class="vp-pills mb-3">
+                <a th:each="o : ${ordens}" class="vp-pill" th:classappend="${filtro.ordem == o} ? 'ativo'"
+                   th:href="${'/?' + filtro.queryString(0, o)}" th:text="${o.rotulo}">Ordem</a>
+            </div>
+
+            <details th:attr="open=${filtro.temFiltros()} ? 'open'">
+                <summary class="fw-semibold"><i class="bi bi-funnel-fill text-primary"></i> Filtros</summary>
+                <form th:action="@{/}" method="get" class="mt-3">
+                    <input type="hidden" name="ordem" th:value="${filtro.ordem}">
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <label for="f-bairro" class="form-label small mb-1">Bairro</label>
+                            <input type="text" id="f-bairro" name="bairro" maxlength="100"
+                                   class="form-control form-control-sm" th:value="${filtro.bairro}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="f-regiao" class="form-label small mb-1">Região</label>
+                            <select id="f-regiao" name="regiao" class="form-select form-select-sm">
+                                <option value="">Todas</option>
+                                <option th:each="r : ${regioes}" th:value="${r}" th:text="${r}"
+                                        th:selected="${r == filtro.regiao}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="f-categoria" class="form-label small mb-1">Categoria</label>
+                            <select id="f-categoria" name="categoriaId" class="form-select form-select-sm">
+                                <option value="">Todas</option>
+                                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"
+                                        th:selected="${filtro.categoriaId != null and filtro.categoriaId == c.id}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="f-prioridade" class="form-label small mb-1">Prioridade</label>
+                            <select id="f-prioridade" name="prioridade" class="form-select form-select-sm">
+                                <option value="">Todas</option>
+                                <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p}"
+                                        th:selected="${p == filtro.prioridade}"></option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="f-status" class="form-label small mb-1">Situação</label>
+                            <select id="f-status" name="status" class="form-select form-select-sm">
+                                <option value="">Todas</option>
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.rotulo}"
+                                        th:selected="${s == filtro.status}"></option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label for="f-de" class="form-label small mb-1">De</label>
+                            <input type="date" id="f-de" name="de" class="form-control form-control-sm"
+                                   th:value="${filtro.de}">
+                        </div>
+                        <div class="col-3">
+                            <label for="f-ate" class="form-label small mb-1">Até</label>
+                            <input type="date" id="f-ate" name="ate" class="form-control form-control-sm"
+                                   th:value="${filtro.ate}">
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="vp-btn vp-btn--pri"><i class="bi bi-funnel"></i> Filtrar</button>
+                        <a th:href="@{/}" class="vp-btn">Limpar</a>
+                    </div>
+                    <div class="form-text mt-2">
+                        A prioridade considerada é a oficial, quando existir; senão, a sugerida pelo cidadão.
+                    </div>
+                </form>
+            </details>
         </section>
 
-        <p class="text-muted" th:if="${page.empty}">
-          Nenhuma ocorrência encontrada.
-        </p>
+        <p class="text-muted small" th:text="${page.totalElements} + ' ocorrência(s) encontrada(s)'">total</p>
+        <p class="text-muted" th:if="${page.empty}">Nenhuma ocorrência encontrada.</p>
 
         <th:block th:each="d : ${page.content}">
-          <article th:replace="~{layout-fragmentos :: cartao(${d}, ${contadores.get(d.id)}, ${fotos.get(d.id)}, ${curtidos.contains(d.id)}, ${incentivados.contains(d.id)}, ${'/?' + filtro.queryString(page.number)})}"></article>
+            <article th:replace="~{layout-fragmentos :: cartao(${d}, ${contadores.get(d.id)}, ${fotos.get(d.id)}, ${curtidos.contains(d.id)}, ${incentivados.contains(d.id)}, ${'/?' + filtro.queryString(page.number)})}"></article>
         </th:block>
 
-        <nav
-          th:replace="~{layout-fragmentos :: paginacao(${page}, ${'/?' + filtro.queryString(page.number - 1)}, ${'/?' + filtro.queryString(page.number + 1)})}"
-        ></nav>
-      </main>
+        <nav th:replace="~{layout-fragmentos :: paginacao(${page}, ${'/?' + filtro.queryString(page.number - 1)}, ${'/?' + filtro.queryString(page.number + 1)})}"></nav>
+    </main>
 
-      <!-- ===== PAINEL DIREITO ===== -->
-      <aside class="vp-direita" aria-label="Painel lateral">
+    <!-- ===== PAINEL DIREITO ===== -->
+    <aside class="vp-direita" aria-label="Painel lateral">
         <section class="vp-card" th:with="g=${painel.geral()}">
-          <h2>Resumo da cidade</h2>
-          <ul class="vp-lista">
-            <li><span>Denúncias</span><b th:text="${g.total()}">0</b></li>
-            <li><span>Em análise</span><b th:text="${g.emAnalise()}">0</b></li>
-            <li>
-              <span>Em andamento</span><b th:text="${g.emExecucao()}">0</b>
-            </li>
-            <li><span>Resolvidas</span><b th:text="${g.resolvidas()}">0</b></li>
-          </ul>
-          <p class="small text-muted mt-2 mb-0">
-            Dados da plataforma, não oficiais.
-            <a th:href="@{/transparencia}">Ver transparência</a>
-          </p>
+            <h2>Resumo da cidade</h2>
+            <ul class="vp-lista">
+                <li><span>Denúncias</span><b th:text="${g.total()}">0</b></li>
+                <li><span>Em análise</span><b th:text="${g.emAnalise()}">0</b></li>
+                <li><span>Em andamento</span><b th:text="${g.emExecucao()}">0</b></li>
+                <li><span>Resolvidas</span><b th:text="${g.resolvidas()}">0</b></li>
+            </ul>
+            <p class="small text-muted mt-2 mb-0">
+                Dados da plataforma, não oficiais. <a th:href="@{/transparencia}">Ver transparência</a>
+            </p>
         </section>
 
         <section class="vp-card">
-          <h2>Mapa de ocorrências</h2>
-          <div
-            id="mapa-mini"
-            th:data-dados="@{/mapa/dados}"
-            role="img"
-            aria-label="Miniatura do mapa de ocorrências"
-          ></div>
-          <a class="vp-btn w-100" th:href="@{/mapa}">Ver mapa completo</a>
+            <h2>Mapa de ocorrências</h2>
+            <div id="mapa-mini" th:data-dados="@{/mapa/dados}" role="img"
+                 aria-label="Miniatura do mapa de ocorrências"></div>
+            <a class="vp-btn w-100" th:href="@{/mapa}"><i class="bi bi-map"></i> Ver mapa completo</a>
         </section>
 
         <section class="vp-card">
-          <h2>Mais incentivadas</h2>
-          <p class="small text-muted mb-0" th:if="${maisIncentivadas.empty}">
-            Nenhuma ocorrência incentivada ainda.
-          </p>
-          <ul class="vp-lista" th:if="${!maisIncentivadas.empty}">
-            <li th:each="d : ${maisIncentivadas}">
-              <a
-                th:href="@{/denuncias/{id}(id=${d.id})}"
-                th:text="${#strings.abbreviate(d.titulo, 40)}"
-                >Título</a
-              >
-              <b th:text="${contadoresTop.get(d.id).incentivos()}">0</b>
-            </li>
-          </ul>
+            <h2>Mais incentivadas</h2>
+            <p class="small text-muted mb-0" th:if="${maisIncentivadas.empty}">
+                Nenhuma ocorrência incentivada ainda.
+            </p>
+            <ul class="vp-lista" th:if="${!maisIncentivadas.empty}">
+                <li th:each="d : ${maisIncentivadas}">
+                    <a th:href="@{/denuncias/{id}(id=${d.id})}" th:text="${#strings.abbreviate(d.titulo, 40)}">Título</a>
+                    <b th:text="${contadoresTop.get(d.id).incentivos()}">0</b>
+                </li>
+            </ul>
         </section>
 
         <section class="vp-card">
-          <h2>Categorias mais frequentes</h2>
-          <p class="small text-muted mb-0" th:if="${painel.categorias().empty}">
-            Sem dados.
-          </p>
-          <ul class="vp-lista" th:if="${!painel.categorias().empty}">
-            <li
-              th:each="l, st : ${painel.categorias()}"
-              th:if="${st.index < 5}"
-            >
-              <span th:text="${l.grupo()}">Categoria</span>
-              <b th:text="${l.indicadores().total()}">0</b>
-            </li>
-          </ul>
+            <h2>Categorias mais frequentes</h2>
+            <p class="small text-muted mb-0" th:if="${painel.categorias().empty}">Sem dados.</p>
+            <ul class="vp-lista" th:if="${!painel.categorias().empty}">
+                <li th:each="l, st : ${painel.categorias()}" th:if="${st.index < 5}">
+                    <span th:text="${l.grupo()}">Categoria</span>
+                    <b th:text="${l.indicadores().total()}">0</b>
+                </li>
+            </ul>
         </section>
-      </aside>
-    </div>
+    </aside>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-      (function () {
-        var el = document.getElementById("mapa-mini");
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    (function () {
+        var el = document.getElementById('mapa-mini');
         if (!el || !window.L) return;
-        var mapa = L.map(el, {
-          zoomControl: false,
-          scrollWheelZoom: false,
-          dragging: false,
-          doubleClickZoom: false,
-          boxZoom: false,
-          keyboard: false,
-          touchZoom: false,
-        }).setView([-8.0476, -34.877], 11);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        var mapa = L.map(el, {zoomControl: false, scrollWheelZoom: false, dragging: false,
+            doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false})
+            .setView([-8.0476, -34.877], 11);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(mapa);
-        fetch(el.getAttribute("data-dados"), { credentials: "same-origin" })
-          .then(function (r) {
-            if (!r.ok) throw new Error();
-            return r.json();
-          })
-          .then(function (dados) {
-            var pontos = [];
-            dados.marcadores.forEach(function (m) {
-              L.circleMarker([m.lat, m.lng], {
-                radius: 5,
-                color: "#1a63f0",
-                weight: 2,
-                fillOpacity: 0.6,
-              }).addTo(mapa);
-              pontos.push([m.lat, m.lng]);
-            });
-            if (pontos.length > 0)
-              mapa.fitBounds(pontos, { padding: [15, 15], maxZoom: 15 });
-          })
-          .catch(function () {});
-      })();
-    </script>
-    <script th:replace="~{layout-fragmentos :: copiar}"></script>
-  </body>
+        fetch(el.getAttribute('data-dados'), {credentials: 'same-origin'})
+            .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+            .then(function (dados) {
+                var pontos = [];
+                dados.marcadores.forEach(function (m) {
+                    L.circleMarker([m.lat, m.lng], {radius: 5, color: '#1a63f0', weight: 2, fillOpacity: 0.6}).addTo(mapa);
+                    pontos.push([m.lat, m.lng]);
+                });
+                if (pontos.length > 0) mapa.fitBounds(pontos, {padding: [15, 15], maxZoom: 15});
+            })
+            .catch(function () {});
+    })();
+</script>
+<script th:replace="~{layout-fragmentos :: copiar}"></script>
+</body>
 </html>

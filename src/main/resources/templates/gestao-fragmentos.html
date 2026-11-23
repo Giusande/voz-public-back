@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<style th:fragment="estiloGestao">
+    .gp{max-width:1180px;margin:0 auto;padding:0 1.25rem 2rem}
+    .gp-cab{display:flex;align-items:center;gap:.9rem;margin-bottom:1.1rem;flex-wrap:wrap}
+    .gp-cab__ic{width:2.9rem;height:2.9rem;border-radius:.8rem;display:flex;align-items:center;justify-content:center;
+                font-size:1.4rem;background:var(--vp-azul-cl);color:var(--vp-azul);flex:none}
+    .gp-cab h1{font-size:1.5rem;font-weight:800;margin:0}
+    .gp-cab p{margin:.1rem 0 0;color:var(--vp-suave);font-size:.92rem}
+    .gp-cab__acoes{margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap}
+
+    .gp-card{background:#fff;border:1px solid var(--vp-borda);border-radius:.85rem;
+             box-shadow:0 1px 2px rgba(16,24,40,.05);padding:1rem 1.1rem}
+    .gp-card h2{font-size:1rem;font-weight:700;margin:0 0 .75rem;display:flex;align-items:center;gap:.5rem}
+    .gp-card h2 i{color:var(--vp-azul)}
+
+    .gp-filtro{margin-bottom:1.1rem}
+    .gp-filtro summary{cursor:pointer;font-weight:700;list-style:none;display:flex;align-items:center;gap:.5rem}
+    .gp-filtro summary::-webkit-details-marker{display:none}
+    .gp-filtro summary .vp-seta{margin-left:auto;font-size:.75rem;transition:transform .15s}
+    .gp-filtro[open] summary .vp-seta{transform:rotate(180deg)}
+
+    .gp-kpis{display:grid;gap:.75rem;grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:1.1rem}
+    @media(min-width:768px){.gp-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(min-width:1100px){.gp-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}}
+    .gp-kpi{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem}
+    .gp-kpi__ic{width:2.4rem;height:2.4rem;border-radius:.65rem;display:flex;align-items:center;justify-content:center;
+                font-size:1.15rem;flex:none}
+    .gp-kpi__v{font-size:1.55rem;font-weight:800;line-height:1.1}
+    .gp-kpi__r{font-size:.78rem;color:var(--vp-suave)}
+    .gp-kpi--alerta{border-color:#f4b5ae;background:#fffafa}
+    .gp-kpi--alerta .gp-kpi__v{color:#b42318}
+
+    .gp-seg{display:flex;height:.85rem;border-radius:1rem;overflow:hidden;background:#eef1f5;margin-bottom:.6rem}
+    .gp-seg>span{display:block;height:100%}
+    .gp-leg{display:flex;flex-wrap:wrap;gap:.35rem 1rem;font-size:.82rem;color:var(--vp-suave)}
+    .gp-leg i{font-size:.55rem;margin-right:.3rem;vertical-align:middle}
+    .c-pend{background:#98a2b3;color:#98a2b3}.c-anal{background:#2e90fa;color:#2e90fa}
+    .c-enc{background:#5b6ee8;color:#5b6ee8}.c-exec{background:#f79009;color:#f79009}
+    .c-res{background:#12b76a;color:#12b76a}.c-ind{background:#344054;color:#344054}
+
+    .gp-barra{margin-bottom:.7rem}
+    .gp-barra__t{display:flex;justify-content:space-between;gap:.5rem;font-size:.86rem;margin-bottom:.2rem}
+    .gp-barra__t span:first-child{overflow-wrap:anywhere}
+    .gp-trilho{height:.5rem;background:#eef1f5;border-radius:1rem;overflow:hidden}
+    .gp-trilho>div{height:100%;border-radius:1rem;background:var(--vp-azul)}
+    .gp-trilho--verde>div{background:#12b76a}
+
+    .gp-tabela{width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem}
+    .gp-tabela th{position:sticky;top:0;background:#f8fafc;color:var(--vp-suave);font-size:.74rem;text-transform:uppercase;
+                  letter-spacing:.05em;text-align:left;padding:.65rem .75rem;border-bottom:1px solid var(--vp-borda);white-space:nowrap}
+    .gp-tabela td{padding:.65rem .75rem;border-bottom:1px solid var(--vp-borda);vertical-align:middle}
+    .gp-tabela tbody tr:hover{background:#f8fafd}
+    .gp-tabela tbody tr:last-child td{border-bottom:0}
+    .gp-tabela .num{text-align:right;font-variant-numeric:tabular-nums}
+    .gp-rolagem{overflow-x:auto;border-radius:.85rem}
+
+    .gp-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:1rem;font-size:.78rem;font-weight:700}
+    .gp-chip--ambar{background:#fff6dd;color:#8a6100}
+    .gp-chip--verm{background:#fdecea;color:#b42318}
+    .gp-chip--cinza{background:#eef1f5;color:#475467}
+
+    .gp-vazio{text-align:center;padding:2.2rem 1rem;color:var(--vp-suave)}
+    .gp-vazio i{font-size:2rem;display:block;margin-bottom:.4rem;color:#98a2b3}
+
+    .gp-grade{display:grid;gap:.85rem;grid-template-columns:minmax(0,1fr)}
+    @media(min-width:768px){.gp-grade{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .gp-item h3{font-size:1rem;font-weight:700;margin:0 0 .15rem}
+    .gp-item h3 a{color:inherit;text-decoration:none}
+    .gp-item h3 a:hover{color:var(--vp-azul)}
+    .gp-saldo{display:flex;height:.6rem;border-radius:1rem;overflow:hidden;background:#eef1f5;margin:.6rem 0 .35rem}
+    .gp-saldo .a{background:#f04438}.gp-saldo .b{background:#12b76a}
+    .gp-saldo-leg{display:flex;justify-content:space-between;font-size:.82rem}
+
+        /* recuo do conteúdo quando a sidebar fixa existe (desktop) */
+    @media(min-width:992px){
+        body:has(.vp-sidebar--fixa) main.gp{margin-left:262px;margin-right:1.25rem;max-width:none;padding-left:0;padding-right:0}
+    }
+    @media(min-width:1500px){
+        body:has(.vp-sidebar--fixa) main.gp{max-width:1180px;margin-right:auto;margin-left:calc(262px + (100vw - 262px - 1180px) / 2)}
+    }
+
+    /* chips de perfil e situação de conta */
+    .gp-chip--azul{background:var(--vp-azul-cl);color:var(--vp-azul)}
+    .gp-chip--verde{background:#d3f0df;color:#075e36}
+    .gp-chip--roxo{background:#efeafe;color:#5b3fc4}
+    .gp-avatar{width:2rem;height:2rem;border-radius:50%;background:var(--vp-azul-cl);color:var(--vp-azul);font-weight:700;
+               display:inline-flex;align-items:center;justify-content:center;flex:none;font-size:.85rem}
+    .gp-acoes-linha summary{cursor:pointer;color:var(--vp-azul);font-size:.85rem;font-weight:600}
+    .gp-acoes-linha form{margin-top:.5rem;min-width:240px}
+    .gp-cit{border-left:3px solid var(--vp-borda);padding-left:.8rem;color:var(--vp-texto);white-space:pre-line;overflow-wrap:anywhere}
+    .gp-alerta-linha{background:#fffafa}
+</style>
+
+<!-- Cabeçalho padrão das páginas de gestão -->
+<div th:fragment="cabecalho(icone, titulo, subtitulo)" class="gp-cab">
+    <span class="gp-cab__ic"><i class="bi" th:classappend="${icone}"></i></span>
+    <div>
+        <h1 th:text="${titulo}">Título</h1>
+        <p th:text="${subtitulo}">Subtítulo</p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -42,8 +42,17 @@ public class FiltroDenuncia {
         return s == null || s.isBlank();
     }
 
-    /** Monta a query string (já codificada) para os links de paginação, mantendo os filtros. */
+        /** Monta a query string (já codificada) para os links de paginação, mantendo os filtros. */
     public String queryString(int pagina) {
+        return montar(pagina, ordem);
+    }
+
+    /** Igual, mas com outra ordenação: usado pelos botões "Mais recentes / incentivadas / urgentes". */
+    public String queryString(int pagina, Ordem outraOrdem) {
+        return montar(pagina, outraOrdem);
+    }
+
+    private String montar(int pagina, Ordem ordemDoLink) {
         StringBuilder sb = new StringBuilder("pagina=").append(Math.max(pagina, 0));
         adicionar(sb, "bairro", bairro == null || bairro.isBlank() ? null : bairro.trim());
         adicionar(sb, "regiao", regiao == null || regiao.isBlank() ? null : regiao);
@@ -52,7 +61,7 @@ public class FiltroDenuncia {
         adicionar(sb, "status", status);
         adicionar(sb, "de", de);
         adicionar(sb, "ate", ate);
-        adicionar(sb, "ordem", ordem);
+        adicionar(sb, "ordem", ordemDoLink);
         return sb.toString();
     }
 

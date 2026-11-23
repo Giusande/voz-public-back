@@ -68,29 +68,6 @@ public class DenunciaController {
         this.confirmacaoService = confirmacaoService;
     }
 
-    @GetMapping
-    public String listar(@ModelAttribute("filtro") FiltroDenuncia filtro,
-                         BindingResult binding,
-                         @RequestParam(defaultValue = "0") int pagina,
-                         Authentication authentication,
-                         Model model) {
-        var resultado = consultaService.buscar(filtro, pagina);
-        model.addAttribute("page", resultado.page());
-        model.addAttribute("contadores", resultado.contadores());
-        model.addAttribute("fotos", resultado.fotos());
-        model.addAttribute("categorias", categoriaRepository.findByAtivaTrueOrderByNome());
-        model.addAttribute("regioes", REGIOES);
-        model.addAttribute("prioridades", Prioridade.values());
-        model.addAttribute("statuses", StatusDenuncia.values());
-        model.addAttribute("ordens", FiltroDenuncia.Ordem.values());
-        var marcas = interacaoService.marcas(
-                resultado.page().getContent().stream().map(Denuncia::getId).toList(),
-                authentication != null ? authentication.getName() : null);
-        model.addAttribute("curtidos", marcas.curtidas());
-        model.addAttribute("incentivados", marcas.incentivos());
-        return "denuncia-lista";
-    }
-
     @GetMapping("/{id:\\d+}")
     public String detalhar(@PathVariable Long id, Authentication authentication, Model model) {
         Denuncia denuncia = denunciaRepository.findComDetalhesById(id)

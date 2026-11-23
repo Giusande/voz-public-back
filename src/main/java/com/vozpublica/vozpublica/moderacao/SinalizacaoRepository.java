@@ -39,4 +39,6 @@ public interface SinalizacaoRepository extends JpaRepository<Sinalizacao, Long> 
                         @Param("agora") LocalDateTime agora, @Param("justificativa") String justificativa,
                         @Param("tipo") TipoConteudo tipo, @Param("alvoId") Long alvoId,
                         @Param("aberta") StatusSinalizacao aberta);
+
+        long countByStatus(StatusSinalizacao status);
 }

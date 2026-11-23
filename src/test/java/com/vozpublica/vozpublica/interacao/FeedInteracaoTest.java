@@ -121,9 +121,9 @@ class FeedInteracaoTest {
         String html = mvc().perform(get("/").param("bairro", bairro).with(user(eu.getEmail()).roles("CIDADAO")))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        assertThat(html).contains("♥ Curtido").contains("📣 Incentivado").contains("vp-btn--curtiu")
-                .contains("id=\"post-" + d.getId() + "\"");
-        assertThat(html).doesNotContain("♡ Curtir");
+        assertThat(html).contains(">Curtido<").contains(">Incentivado<").contains("vp-btn--curtiu")
+                .contains("bi-heart-fill").contains("id=\"post-" + d.getId() + "\"");
+        assertThat(html).doesNotContain(">Curtir<");
     }
 
     @Test

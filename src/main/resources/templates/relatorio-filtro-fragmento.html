@@ -1,112 +1,64 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <body>
-    <form
-      th:fragment="filtro(acao, comDimensao)"
-      th:action="@{${acao}}"
-      method="get"
-      class="card card-body mb-3"
-    >
-      <div class="row g-2">
-        <div class="col-md-3">
-          <label for="f-de" class="form-label small mb-1">Registradas de</label>
-          <input
-            type="date"
-            id="f-de"
-            name="de"
-            class="form-control form-control-sm"
-            th:value="${filtro.de}"
-          />
+<body>
+<details th:fragment="filtro(acao, comDimensao)" class="gp-card gp-filtro"
+         th:attr="open=${filtro.de != null or filtro.ate != null or filtro.bairro != null or filtro.regiao != null or filtro.categoriaId != null or filtro.unidadeId != null} ? 'open'">
+    <summary><i class="bi bi-funnel-fill text-primary"></i> Filtros
+        <i class="bi bi-chevron-down vp-seta"></i></summary>
+
+    <form th:action="@{${acao}}" method="get" class="mt-3">
+        <div class="row g-2">
+            <div class="col-6 col-md-3">
+                <label for="f-de" class="form-label small mb-1">Registradas de</label>
+                <input type="date" id="f-de" name="de" class="form-control form-control-sm" th:value="${filtro.de}">
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="f-ate" class="form-label small mb-1">até</label>
+                <input type="date" id="f-ate" name="ate" class="form-control form-control-sm" th:value="${filtro.ate}">
+            </div>
+            <div class="col-md-3">
+                <label for="f-bairro" class="form-label small mb-1">Bairro</label>
+                <input type="text" id="f-bairro" name="bairro" maxlength="100"
+                       class="form-control form-control-sm" th:value="${filtro.bairro}">
+            </div>
+            <div class="col-md-3">
+                <label for="f-regiao" class="form-label small mb-1">Região</label>
+                <select id="f-regiao" name="regiao" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="r : ${regioes}" th:value="${r}" th:text="${r}"
+                            th:selected="${r == filtro.regiao}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="f-categoria" class="form-label small mb-1">Categoria</label>
+                <select id="f-categoria" name="categoriaId" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nome}"
+                            th:selected="${filtro.categoriaId != null and filtro.categoriaId == c.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="f-unidade" class="form-label small mb-1">Órgão responsável (inclui as unidades abaixo)</label>
+                <select id="f-unidade" name="unidadeId" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option th:each="u : ${unidades}" th:value="${u.id}"
+                            th:text="${u.tipo.rotulo + ': ' + (u.pai != null ? u.pai.nome + ' › ' : '') + u.nome}"
+                            th:selected="${filtro.unidadeId != null and filtro.unidadeId == u.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-3" th:if="${comDimensao}">
+                <label for="f-dim" class="form-label small mb-1">Agrupar por</label>
+                <select id="f-dim" name="dimensao" class="form-select form-select-sm">
+                    <option th:each="d : ${dimensoes}" th:value="${d}" th:text="${d.rotulo}"
+                            th:selected="${d == filtro.dimensao}"></option>
+                </select>
+            </div>
         </div>
-        <div class="col-md-3">
-          <label for="f-ate" class="form-label small mb-1">até</label>
-          <input
-            type="date"
-            id="f-ate"
-            name="ate"
-            class="form-control form-control-sm"
-            th:value="${filtro.ate}"
-          />
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="vp-btn vp-btn--pri"><i class="bi bi-check2"></i> Aplicar</button>
+            <a th:href="@{${acao}}" class="vp-btn">Limpar</a>
         </div>
-        <div class="col-md-3">
-          <label for="f-bairro" class="form-label small mb-1">Bairro</label>
-          <input
-            type="text"
-            id="f-bairro"
-            name="bairro"
-            maxlength="100"
-            class="form-control form-control-sm"
-            th:value="${filtro.bairro}"
-          />
-        </div>
-        <div class="col-md-3">
-          <label for="f-regiao" class="form-label small mb-1">Região</label>
-          <select
-            id="f-regiao"
-            name="regiao"
-            class="form-select form-select-sm"
-          >
-            <option value="">Todas</option>
-            <option
-              th:each="r : ${regioes}"
-              th:value="${r}"
-              th:text="${r}"
-              th:selected="${r == filtro.regiao}"
-            ></option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="f-categoria" class="form-label small mb-1"
-            >Categoria</label
-          >
-          <select
-            id="f-categoria"
-            name="categoriaId"
-            class="form-select form-select-sm"
-          >
-            <option value="">Todas</option>
-            <option
-              th:each="c : ${categorias}"
-              th:value="${c.id}"
-              th:text="${c.nome}"
-              th:selected="${filtro.categoriaId != null and filtro.categoriaId == c.id}"
-            ></option>
-          </select>
-        </div>
-        <div class="col-md-5">
-          <label for="f-unidade" class="form-label small mb-1"
-            >Órgão responsável (inclui as unidades abaixo)</label
-          >
-          <select
-            id="f-unidade"
-            name="unidadeId"
-            class="form-select form-select-sm"
-          >
-            <option value="">Todos</option>
-            <option
-              th:each="u : ${unidades}"
-              th:value="${u.id}"
-              th:text="${u.tipo.rotulo + ': ' + (u.pai != null ? u.pai.nome + ' › ' : '') + u.nome}"
-              th:selected="${filtro.unidadeId != null and filtro.unidadeId == u.id}"
-            ></option>
-          </select>
-        </div>
-        <div class="col-md-3" th:if="${comDimensao}">
-          <label for="f-dim" class="form-label small mb-1">Agrupar por</label>
-          <select id="f-dim" name="dimensao" class="form-select form-select-sm">
-            <option
-              th:each="d : ${dimensoes}"
-              th:value="${d}"
-              th:text="${d.rotulo}"
-              th:selected="${d == filtro.dimensao}"
-            ></option>
-          </select>
-        </div>
-      </div>
-      <div class="mt-3 d-flex gap-2">
-        <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
-        <a th:href="@{${acao}}" class="btn btn-link btn-sm">Limpar</a>
-      </div>
     </form>
-  </body>
+</details>
+</body>
 </html>

@@ -1,94 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ocorrências atrasadas - Voz Pública</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-light">
-    <div th:replace="~{menu-fragmento :: menu}"></div>
-    <main class="container py-4" style="max-width: 1000px">
-      <a th:href="@{/denuncias}" class="btn btn-outline-secondary btn-sm mb-3"
-        >&laquo; Ocorrências</a
-      >
-      <h1 class="h4">Ocorrências atrasadas</h1>
-      <p class="text-muted small">
-        Atrasada = fora de RESOLVIDA e INDEFERIDA, com hoje depois do prazo de
-        referência (prazo específico do encaminhamento ou criação + prazo da
-        categoria).
-      </p>
+<head>
+    <th:block th:replace="~{layout-fragmentos :: headComum('Ocorrências atrasadas')}"></th:block>
+    <style th:replace="~{gestao-fragmentos :: estiloGestao}"></style>
+</head>
+<body>
+<div th:replace="~{menu-fragmento :: menuEquipe}"></div>
 
-      <p class="text-muted" th:if="${page.empty}">
+<main class="gp">
+    <div class="gp-cab">
+        <span class="gp-cab__ic ic-vermelho"><i class="bi bi-alarm-fill"></i></span>
+        <div>
+            <h1>Ocorrências atrasadas</h1>
+            <p><b th:text="${page.totalElements}">0</b> ocorrência(s) fora do prazo de referência.</p>
+        </div>
+        <div class="gp-cab__acoes">
+            <a th:href="@{/gestao/dashboard}" class="vp-btn"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </div>
+    </div>
+
+    <p class="text-muted small">
+        Atrasada = fora de RESOLVIDA e INDEFERIDA, com hoje depois do prazo de referência
+        (prazo específico do encaminhamento ou última reabertura (ou criação) + prazo da categoria).
+    </p>
+
+    <div class="gp-card gp-vazio" th:if="${page.empty}">
+        <i class="bi bi-emoji-smile"></i>
         Nenhuma ocorrência atrasada.
-      </p>
+    </div>
 
-      <div class="table-responsive" th:if="${!page.empty}">
-        <table class="table table-sm align-middle bg-white">
-          <thead>
-            <tr>
-              <th>Ocorrência</th>
-              <th>Categoria</th>
-              <th>Bairro</th>
-              <th>Situação</th>
-              <th>Unidade</th>
-              <th>Prazo</th>
-              <th>Atraso</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="l : ${page.content}">
-              <td>
-                <a
-                  th:href="@{/gestao/denuncias/{id}(id=${l.id()})}"
-                  th:text="${l.titulo()}"
-                  >Título</a
-                >
-              </td>
-              <td th:text="${l.categoria()}">Categoria</td>
-              <td th:text="${l.bairro()}">Bairro</td>
-              <td th:text="${l.status()}">STATUS</td>
-              <td
-                th:text="${l.unidade() != null ? l.unidade() : 'Sem encaminhamento'}"
-              >
-                Unidade
-              </td>
-              <td th:text="${#temporals.format(l.prazo(), 'dd/MM/yyyy')}">
-                prazo
-              </td>
-              <td th:text="${l.diasAtraso()} + ' dia(s)'">atraso</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="gp-card p-0" th:if="${!page.empty}">
+        <div class="gp-rolagem">
+            <table class="gp-tabela">
+                <thead>
+                <tr>
+                    <th>Ocorrência</th><th>Categoria</th><th>Bairro</th><th>Situação</th>
+                    <th>Unidade</th><th>Prazo</th><th>Atraso</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${page.content}">
+                    <td>
+                        <a th:href="@{/gestao/denuncias/{id}(id=${l.id()})}" class="fw-semibold text-decoration-none"
+                           th:text="${l.titulo()}">Título</a>
+                    </td>
+                    <td th:text="${l.categoria()}">Categoria</td>
+                    <td th:text="${l.bairro()}">Bairro</td>
+                    <td>
+                        <span class="vp-tag" th:classappend="'vp-st-' + ${l.status()}"
+                              th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(l.status(), '_', ' ')))}">Situação</span>
+                    </td>
+                    <td>
+                        <span th:if="${l.unidade() != null}" th:text="${l.unidade()}">Unidade</span>
+                        <span class="text-muted" th:if="${l.unidade() == null}">Sem encaminhamento</span>
+                    </td>
+                    <td th:text="${#temporals.format(l.prazo(), 'dd/MM/yyyy')}">prazo</td>
+                    <td>
+                        <span class="gp-chip" th:classappend="${l.diasAtraso() > 30} ? 'gp-chip--verm' : 'gp-chip--ambar'">
+                            <i class="bi bi-clock-history"></i>
+                            <span th:text="${l.diasAtraso()} + ' dia(s)'">0 dia(s)</span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-      <nav
-        class="d-flex justify-content-between"
-        th:if="${page.totalPages > 1}"
-      >
-        <a
-          class="btn btn-outline-secondary btn-sm"
-          th:if="${page.hasPrevious()}"
-          th:href="@{/gestao/atrasadas(pagina=${page.number - 1})}"
-          >&laquo; Anteriores</a
-        >
-        <span th:unless="${page.hasPrevious()}"></span>
-        <span
-          class="text-muted small align-self-center"
-          th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}"
-          >Página</span
-        >
-        <a
-          class="btn btn-outline-secondary btn-sm"
-          th:if="${page.hasNext()}"
-          th:href="@{/gestao/atrasadas(pagina=${page.number + 1})}"
-          >Próximas &raquo;</a
-        >
-        <span th:unless="${page.hasNext()}"></span>
-      </nav>
-    </main>
-  </body>
+    <div class="mt-3">
+        <nav th:replace="~{layout-fragmentos :: paginacao(${page}, ${'/gestao/atrasadas?pagina=' + (page.number - 1)}, ${'/gestao/atrasadas?pagina=' + (page.number + 1)})}"></nav>
+    </div>
+</main>
+</body>
 </html>

@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <body>
+<!-- Páginas comuns: sidebar da equipe como gaveta (☰) -->
 <th:block th:fragment="menu">
     <link th:replace="~{layout-fragmentos :: icones}">
     <style th:replace="~{layout-fragmentos :: estilo}"></style>
     <div th:replace="~{layout-fragmentos :: topbar(false)}"></div>
     <div th:replace="~{layout-fragmentos :: sidebar(false, '', '')}"></div>
+</th:block>
+
+<!-- Gestão e administração: sidebar fixa à esquerda no desktop -->
+<th:block th:fragment="menuEquipe">
+    <link th:replace="~{layout-fragmentos :: icones}">
+    <style th:replace="~{layout-fragmentos :: estilo}"></style>
+    <div th:replace="~{layout-fragmentos :: topbar(true)}"></div>
+    <div th:replace="~{layout-fragmentos :: sidebar(true, '', '')}"></div>
 </th:block>
 </body>
 </html>

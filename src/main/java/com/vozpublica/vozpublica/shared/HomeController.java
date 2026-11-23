@@ -1,8 +1,11 @@
 package com.vozpublica.vozpublica.shared;
 
+import com.vozpublica.vozpublica.categoria.CategoriaRepository;
 import com.vozpublica.vozpublica.denuncia.Denuncia;
 import com.vozpublica.vozpublica.denuncia.DenunciaConsultaService;
 import com.vozpublica.vozpublica.denuncia.FiltroDenuncia;
+import com.vozpublica.vozpublica.denuncia.Prioridade;
+import com.vozpublica.vozpublica.denuncia.StatusDenuncia;
 import com.vozpublica.vozpublica.interacao.InteracaoService;
 import com.vozpublica.vozpublica.relatorio.TransparenciaService;
 import org.springframework.security.core.Authentication;
@@ -18,18 +21,25 @@ import java.util.List;
 @Controller
 public class HomeController {
 
+    private static final List<String> REGIOES = List.of(
+            "RPA 1 - Centro", "RPA 2 - Norte", "RPA 3 - Noroeste",
+            "RPA 4 - Oeste", "RPA 5 - Sudoeste", "RPA 6 - Sul");
+
     private final DenunciaConsultaService consulta;
     private final TransparenciaService transparencia;
     private final InteracaoService interacaoService;
+    private final CategoriaRepository categoriaRepository;
 
     public HomeController(DenunciaConsultaService consulta, TransparenciaService transparencia,
-                          InteracaoService interacaoService) {
+                          InteracaoService interacaoService, CategoriaRepository categoriaRepository) {
         this.consulta = consulta;
         this.transparencia = transparencia;
         this.interacaoService = interacaoService;
+        this.categoriaRepository = categoriaRepository;
     }
 
-    @GetMapping("/")
+    /** "/denuncias" é um apelido do feed: os links e os favoritos antigos continuam funcionando. */
+    @GetMapping({"/", "/denuncias"})
     public String home(@ModelAttribute("filtro") FiltroDenuncia filtro,
                        BindingResult binding, // valores inválidos nos filtros são ignorados
                        @RequestParam(defaultValue = "0") int pagina,
@@ -45,6 +55,13 @@ public class HomeController {
                 authentication != null ? authentication.getName() : null);
         model.addAttribute("curtidos", marcas.curtidas());
         model.addAttribute("incentivados", marcas.incentivos());
+
+        // opções do bloco de filtros
+        model.addAttribute("categorias", categoriaRepository.findByAtivaTrueOrderByNome());
+        model.addAttribute("regioes", REGIOES);
+        model.addAttribute("prioridades", Prioridade.values());
+        model.addAttribute("statuses", StatusDenuncia.values());
+        model.addAttribute("ordens", FiltroDenuncia.Ordem.values());
 
         // Mais incentivadas: só as que têm ao menos um incentivo
         FiltroDenuncia porIncentivo = new FiltroDenuncia();
