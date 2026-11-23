@@ -30,7 +30,7 @@ public class UserService {
                 form.getName().trim(),
                 email,
                 passwordEncoder.encode(form.getPassword()),
-                Role.CIDADAO); // todo cadastro público nasce como CIDADAO
+                Role.CIDADAO);
         if (props.isVerificacaoObrigatoria()) {
             user.exigirVerificacaoEmail();
         }
@@ -38,7 +38,6 @@ public class UserService {
         try {
             return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {
-            // duas requisições simultâneas com o mesmo e-mail: o índice único do banco barra a segunda
             throw new EmailAlreadyUsedException();
         }
     }

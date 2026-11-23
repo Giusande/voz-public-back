@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 @Controller
 public class InteracaoController {
 
-    /** Só "/" ou "/denuncias", com query opcional: nunca outro caminho nem outro site. */
     private static final Pattern VOLTAR_VALIDO = Pattern.compile("/(denuncias)?(\\?[^\\s#\\\\{}]{0,500})?");
 
     private final InteracaoService interacaoService;

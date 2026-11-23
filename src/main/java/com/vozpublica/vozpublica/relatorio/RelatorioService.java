@@ -50,7 +50,6 @@ public class RelatorioService {
     }
 
     public record Linha(String grupo, Indicadores indicadores) {
-        /** Participação no total geral, de 0 a 100, para as barras. */
         public int participacao(long totalGeral) {
             return totalGeral == 0 ? 0 : (int) Math.min(100, indicadores.total() * 100 / totalGeral);
         }
@@ -194,7 +193,7 @@ public class RelatorioService {
         List<Linha> linhas = new ArrayList<>(
                 jdbc.query(sql, c.params(), (rs, n) -> new Linha(rs.getString("grupo"), mapear(rs))));
         if (dimensao == Dimensao.MES) {
-            Collections.reverse(linhas); // os últimos meses, em ordem cronológica
+            Collections.reverse(linhas); 
         }
         return linhas;
     }
@@ -234,14 +233,12 @@ public class RelatorioService {
             p.addValue("categoriaId", f.getCategoriaId());
         }
         if (f.getUnidadeId() != null) {
-            // a unidade em si, ou qualquer uma abaixo dela (até 3 níveis)
             where.append(" AND (u.id = :unidadeId OR u.pai_id = :unidadeId OR u2.pai_id = :unidadeId)");
             p.addValue("unidadeId", f.getUnidadeId());
         }
         return new Consulta(where.toString(), p);
     }
 
-    /** No LIKE do PostgreSQL a barra invertida é o escape padrão. */
     private static String escapar(String s) {
         return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

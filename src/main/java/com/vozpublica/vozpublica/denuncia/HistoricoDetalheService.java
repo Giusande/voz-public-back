@@ -31,7 +31,6 @@ public class HistoricoDetalheService {
     public Detalhes carregar(Long denunciaId) {
         List<HistoricoStatus> status = historicoRepository.findByDenunciaIdOrderByDataAlteracaoAsc(denunciaId);
 
-        // todo registro de histórico tem uma entrada no mapa, mesmo sem evidências
         Map<Long, List<Evidencia>> evidencias = new HashMap<>();
         for (HistoricoStatus h : status) {
             evidencias.put(h.getId(), new ArrayList<>());

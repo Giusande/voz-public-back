@@ -32,7 +32,6 @@ public class ModeracaoService {
     private static final int MAX_JUSTIFICATIVA = 1000;
     private static final int MAX_TRECHO = 300;
 
-    /** Não inclui quem sinalizou, de propósito (LGPD). */
     public record ItemFila(Long id, TipoConteudo tipo, Long alvoId, Long denunciaId,
                            String tituloPublicacao, String trecho,
                            MotivoSinalizacao motivo, String detalhe, LocalDateTime data) {}
@@ -67,7 +66,6 @@ public class ModeracaoService {
         Page<Sinalizacao> page = sinalizacaoRepository.findByStatusOrderByIdAsc(
                 StatusSinalizacao.ABERTA, PageRequest.of(Math.max(pagina, 0), TAMANHO_PAGINA));
 
-        // Uma consulta por tipo para a página inteira, sem N+1
         Set<Long> idsDenuncia = new HashSet<>();
         Set<Long> idsComentario = new HashSet<>();
         for (Sinalizacao s : page) {
@@ -186,7 +184,6 @@ public class ModeracaoService {
             notificarComentario(c, admin, "foi ocultado pela moderação. Motivo: " + motivo);
         }
 
-        // Grava a ocultação e encerra todas as sinalizações abertas deste conteúdo
         sinalizacaoRepository.resolverAbertas(StatusSinalizacao.PROCEDENTE, admin.getId(),
                 LocalDateTime.now(), motivo, tipo, alvoId, StatusSinalizacao.ABERTA);
 

@@ -20,8 +20,7 @@ public class Categoria {
     private boolean ativa = true;
 
     protected Categoria() {}
-
-    /** Package-private: só o serviço administrativo, que é protegido, altera o prazo. */
+    
     void alterarPrazo(int dias) {
         this.prazoReferenciaDias = dias;
     }

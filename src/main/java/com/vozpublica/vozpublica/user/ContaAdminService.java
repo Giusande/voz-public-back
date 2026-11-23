@@ -88,9 +88,6 @@ public class ContaAdminService {
         User responsavel = userRepository.findByEmail(emailResponsavel.trim().toLowerCase())
                 .orElseThrow(() -> new IllegalStateException("Usuário autenticado não encontrado."));
 
-        // Sempre na mesma ordem (administradores ativos, depois o alvo): requisições
-        // concorrentes entram em fila em vez de gerar deadlock, e cada uma enxerga o
-        // resultado da anterior. É isso que protege o "último administrador".
         List<User> ativos = userRepository.bloquearAtivosComPapel(Role.ADMINISTRADOR);
         User alvo = userRepository.buscarParaAtualizar(usuarioId)
                 .orElseThrow(() -> new ContaInvalidaException("Usuário não encontrado."));

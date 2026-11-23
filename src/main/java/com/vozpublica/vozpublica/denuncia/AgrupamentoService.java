@@ -51,9 +51,7 @@ public class AgrupamentoService {
         if (!denunciaRepository.existsById(principalId)) {
             throw new GestaoInvalidaException("Ocorrência principal não encontrada.");
         }
-
-        // Bloqueia as duas linhas sempre em ordem de id: agrupamentos simultâneos em
-        // sentidos opostos entram em fila em vez de gerar deadlock.
+        
         Long primeiro = Math.min(filhaId, principalId);
         Long segundo = Math.max(filhaId, principalId);
         Denuncia a = gestaoRepository.buscarParaAtualizar(primeiro)

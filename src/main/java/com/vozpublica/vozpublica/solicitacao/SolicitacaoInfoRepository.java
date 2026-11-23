@@ -22,7 +22,6 @@ public interface SolicitacaoInfoRepository extends JpaRepository<SolicitacaoInfo
 
     Optional<SolicitacaoInfo> findFirstByDenunciaIdOrderByIdDesc(Long denunciaId);
 
-    /** Só responde se ainda estiver aberta: devolve 0 se já foi respondida. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE SolicitacaoInfo s SET s.resposta = :resposta, s.dataResposta = :agora "
             + "WHERE s.denunciaId = :denunciaId AND s.resposta IS NULL")

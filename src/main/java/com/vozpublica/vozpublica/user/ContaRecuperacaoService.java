@@ -12,7 +12,6 @@ import java.util.Optional;
 @Service
 public class ContaRecuperacaoService {
 
-    /** O que o chamador deve enviar por e-mail, depois de a transação terminar. */
     public record Envio(String destino, String nome, String token) {}
 
     private static final Duration HORA = Duration.ofHours(1);
@@ -33,7 +32,6 @@ public class ContaRecuperacaoService {
         this.props = props;
     }
 
-    /** Vazio em qualquer caso de "não enviar": o chamador responde sempre igual, para não revelar nada. */
     @Transactional
     public Optional<Envio> solicitarRecuperacao(String emailBruto, String ip) {
         String email = normalizar(emailBruto);
@@ -52,7 +50,6 @@ public class ContaRecuperacaoService {
         return tokens.valido(token, TipoToken.REDEFINICAO_SENHA);
     }
 
-    /** A senha já deve ter passado na validação do formulário: assim um erro de digitação não gasta o token. */
     @Transactional
     public boolean redefinirSenha(String token, String novaSenha, String ip) {
         if (novaSenha == null || novaSenha.length() < 8 || novaSenha.length() > 72) {
@@ -71,12 +68,11 @@ public class ContaRecuperacaoService {
         }
         User u = alvo.get();
         u.trocarSenha(passwordEncoder.encode(novaSenha));
-        u.marcarEmailVerificado(); // quem recebeu o link prova que controla o e-mail
+        u.marcarEmailVerificado();
         tokens.invalidarPendentes(u.getId(), TipoToken.REDEFINICAO_SENHA);
         return true;
     }
 
-    /** Token para a conta que acabou de ser criada (nada a fazer se a verificação não for obrigatória). */
     @Transactional
     public Optional<Envio> verificacaoParaNovaConta(User usuario) {
         if (!props.isVerificacaoObrigatoria() || usuario.isEmailVerificado()) {

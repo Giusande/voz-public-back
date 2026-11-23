@@ -9,12 +9,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Prazo de referência = prazo específico do encaminhamento atual (se houver e se for posterior
- * à última reabertura); senão, data-base + prazo (em dias) da categoria, onde a data-base é a
- * última reabertura ou, não havendo, a criação.
- * Atrasada = fora de RESOLVIDA/INDEFERIDA e hoje DEPOIS do prazo.
- */
 public record Prazo(LocalDate data, boolean doEncaminhamento, boolean aPartirDaReabertura,
                     boolean atrasada, long diasAtraso) {
 

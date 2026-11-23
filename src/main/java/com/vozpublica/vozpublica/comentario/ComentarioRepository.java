@@ -14,7 +14,6 @@ import java.util.Optional;
 
 public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
 
-    /** Todos os comentários (inclusive ocultos): só para o administrador. */
     @EntityGraph(attributePaths = "autor")
     List<Comentario> findByDenunciaIdOrderByDataCriacaoAsc(Long denunciaId);
 

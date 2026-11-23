@@ -30,7 +30,6 @@ public class MapaService {
         Specification<Denuncia> comCoordenadas = (root, query, cb) -> cb.and(
                 cb.isNotNull(root.get("latitude")), cb.isNotNull(root.get("longitude")));
 
-        // as ocultas e as duplicadas já ficam de fora em DenunciaSpecs.de
         var page = denunciaRepository.findAll(
                 DenunciaSpecs.de(filtro).and(comCoordenadas),
                 PageRequest.of(0, MAX_MARCADORES + 1, Sort.by(Sort.Direction.DESC, "dataCriacao")));

@@ -1,9 +1,5 @@
 package com.vozpublica.vozpublica.encaminhamento;
 
-/**
- * Única definição, em SQL, do prazo de referência. Exige o alias "d" (denuncias).
- * Cria os aliases c (categorias), e (encaminhamento atual), ro (última reabertura) e u (unidade atual).
- */
 public final class PrazoSql {
 
     private PrazoSql() {}

@@ -54,7 +54,6 @@ public class SolicitacaoInfoService {
         }
         User solicitante = usuario(email);
 
-        // bloqueia a ocorrência: pedidos simultâneos entram em fila
         Denuncia d = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
         if (d.isOculta()) {
@@ -71,7 +70,7 @@ public class SolicitacaoInfoService {
         try {
             solicitacaoRepository.saveAndFlush(new SolicitacaoInfo(denunciaId, solicitante, texto));
         } catch (DataIntegrityViolationException e) {
-            throw new GestaoInvalidaException(JA_ABERTA); // o índice único do banco é a rede de segurança
+            throw new GestaoInvalidaException(JA_ABERTA); 
         }
 
         notificacoes.notificar(d.getAutor().getId(), solicitante.getId(), TipoNotificacao.INFORMACAO,
@@ -80,7 +79,6 @@ public class SolicitacaoInfoService {
                 denunciaId);
     }
 
-    /** Só o autor da ocorrência responde. */
     @Transactional
     public void responder(Long denunciaId, String resposta, String email) {
         String texto = resposta == null ? "" : resposta.trim();

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.function.Supplier;
 
-/** Informa a todas as páginas o que o menu deve mostrar. */
 @ControllerAdvice
 public class MenuAdvice {
 
-    /** Consulta o banco só quando o template pede o total, e uma única vez. Falha vira 0, nunca derruba a página. */
     public static final class Contador {
         private final Supplier<Long> origem;
         private Long cache;

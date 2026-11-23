@@ -64,7 +64,6 @@ public class GestaoDenunciaService {
             throw new GestaoInvalidaException("Para " + novoStatus + ", a observação é obrigatória.");
         }
 
-        // valida as imagens antes de tocar no banco ou no disco
         List<FotoProcessada> provas = armazenamento.validar(evidencias);
         if (novoStatus == StatusDenuncia.RESOLVIDA && provas.isEmpty()) {
             throw new GestaoInvalidaException(
@@ -73,7 +72,6 @@ public class GestaoDenunciaService {
 
         User responsavel = responsavel(emailResponsavel);
 
-        // bloqueia a linha: a validação abaixo vale contra o status mais recente
         Denuncia denuncia = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
         

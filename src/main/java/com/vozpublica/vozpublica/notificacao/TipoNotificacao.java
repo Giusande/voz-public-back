@@ -22,7 +22,6 @@ public enum TipoNotificacao {
 
     public String getRotulo() { return rotulo; }
 
-    /** Caminho (dentro do site) para onde o botão "Abrir" leva. */
     public String caminho(Long denunciaId) {
         return switch (destino) {
             case MINHAS -> "/minhas-denuncias";

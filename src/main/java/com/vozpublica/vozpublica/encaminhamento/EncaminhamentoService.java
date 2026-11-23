@@ -72,7 +72,6 @@ public class EncaminhamentoService {
         User responsavel = userRepository.findByEmail(emailResponsavel.trim().toLowerCase())
                 .orElseThrow(() -> new IllegalStateException("Usuário autenticado não encontrado."));
 
-        // bloqueia a linha: a validação abaixo vale contra o estado mais recente
         var denuncia = gestaoRepository.buscarParaAtualizar(denunciaId)
                 .orElseThrow(DenunciaNaoEncontradaException::new);
         

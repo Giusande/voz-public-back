@@ -22,7 +22,6 @@ public class FiltroRelatorio {
     private Long unidadeId;
     private Dimensao dimensao = Dimensao.BAIRRO;
 
-    /** Query string já codificada, para os links de exportação manterem os filtros. */
     public String queryString() {
         StringBuilder sb = new StringBuilder();
         adicionar(sb, "de", de);
@@ -35,7 +34,6 @@ public class FiltroRelatorio {
         return sb.toString();
     }
 
-    /** Texto dos filtros aplicados, para a auditoria (sem dados pessoais). */
     public String resumo() {
         List<String> partes = new ArrayList<>();
         if (de != null) partes.add("de " + de);

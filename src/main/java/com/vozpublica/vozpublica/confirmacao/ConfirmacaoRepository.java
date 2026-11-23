@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface ConfirmacaoRepository extends JpaRepository<Confirmacao, Long> {
 
-    /** Um relato por pessoa e ocorrência: registrar de novo troca o tipo e renova a data. */
     @Modifying
     @Query(value = "INSERT INTO confirmacoes (denuncia_id, usuario_id, tipo) "
             + "VALUES (:denunciaId, :usuarioId, :tipo) "

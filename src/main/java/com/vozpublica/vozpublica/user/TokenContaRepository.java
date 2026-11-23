@@ -18,7 +18,6 @@ public interface TokenContaRepository extends JpaRepository<TokenConta, Long> {
     int invalidarPendentes(@Param("usuarioId") Long usuarioId, @Param("tipo") TipoToken tipo,
                            @Param("agora") LocalDateTime agora);
 
-    /** Atômico: de duas requisições simultâneas com o mesmo token, só uma recebe 1. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE TokenConta t SET t.usadoEm = :agora "
             + "WHERE t.tokenHash = :hash AND t.tipo = :tipo AND t.usadoEm IS NULL AND t.expiraEm > :agora")

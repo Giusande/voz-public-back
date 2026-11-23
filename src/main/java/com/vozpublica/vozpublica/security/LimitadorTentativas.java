@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Limitador em memória (por instância). Serve a login, recuperação de senha e reenvios. */
 @Component
 public class LimitadorTentativas {
 
@@ -35,7 +34,6 @@ public class LimitadorTentativas {
         }
     }
 
-    /** Conta uma falha; ao atingir o limite dentro da janela, bloqueia a chave. */
     public void registrarFalha(String chave, int limite, Duration janela, Duration bloqueio) {
         Instant agora = clock.instant();
         podarSeCheio(agora);
@@ -51,7 +49,6 @@ public class LimitadorTentativas {
         }
     }
 
-    /** Conta uma tentativa de ação e diz se ainda está dentro do limite da janela. */
     public boolean permitir(String chave, int limite, Duration janela) {
         Instant agora = clock.instant();
         podarSeCheio(agora);
@@ -74,7 +71,6 @@ public class LimitadorTentativas {
         }
     }
 
-    /** Limita a memória. Se, mesmo podado, passar do teto, zera tudo (limitação conhecida). */
     private void podarSeCheio(Instant agora) {
         if (mapa.size() <= MAX_CHAVES) return;
         mapa.entrySet().removeIf(en -> {

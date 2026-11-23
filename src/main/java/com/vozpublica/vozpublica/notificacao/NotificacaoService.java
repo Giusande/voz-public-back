@@ -23,10 +23,6 @@ public class NotificacaoService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Só funciona dentro de uma transação já aberta (MANDATORY): a notificação nasce junto com a
-     * ação e é desfeita junto com ela. Não notifica quem executou a própria ação.
-     */
     @Transactional(propagation = Propagation.MANDATORY)
     public void notificar(Long destinatarioId, Long executorId, TipoNotificacao tipo,
                           String mensagem, Long denunciaId) {
@@ -37,7 +33,6 @@ public class NotificacaoService {
         notificacaoRepository.save(new Notificacao(destinatarioId, tipo, texto, denunciaId));
     }
 
-    /** Título encurtado para caber nas mensagens. */
     public static String trecho(String titulo) {
         if (titulo == null) return "";
         return titulo.length() > MAX_TRECHO ? titulo.substring(0, MAX_TRECHO) + "…" : titulo;

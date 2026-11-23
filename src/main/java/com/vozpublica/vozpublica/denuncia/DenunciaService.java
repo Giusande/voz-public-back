@@ -39,7 +39,7 @@ public class DenunciaService {
 
     @Transactional
     public Denuncia registrar(DenunciaForm form, String emailAutor, List<MultipartFile> fotos) {
-        // 1) valida as imagens antes de tocar no banco ou no disco
+
         List<FotoProcessada> processadas = armazenamento.validar(fotos);
 
         User autor = userRepository.findByEmail(emailAutor.trim().toLowerCase())
@@ -63,7 +63,6 @@ public class DenunciaService {
                 denuncia, null, StatusDenuncia.RECEBIDA, autor,
                 "Ocorrência registrada pelo cidadão."));
 
-        // 2) grava os arquivos; se a transação for desfeita, apaga todos
         for (FotoProcessada processada : processadas) {
             String nome = armazenamento.salvar(processada);
             apagarSeTransacaoFalhar(nome);

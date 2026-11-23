@@ -18,10 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Encerra a sessão de quem foi suspenso, teve o perfil alterado ou trocou a senha desde o login.
- * Usuários que não existem no banco passam direto (só ocorre em contextos de teste).
- */
 public class SessaoAtualizadaFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
@@ -30,7 +26,6 @@ public class SessaoAtualizadaFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
-    /** Login e logout têm de funcionar mesmo com uma sessão antiga ainda no navegador. */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String caminho = request.getRequestURI().substring(request.getContextPath().length());
@@ -61,7 +56,6 @@ public class SessaoAtualizadaFilter extends OncePerRequestFilter {
         if (!usuario.isEnabled()) {
             return true;
         }
-        // Só os perfis (ROLE_...) contam. Outras autoridades, como FACTOR_PASSWORD, não indicam mudança.
         Set<String> perfis = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(a -> a.startsWith("ROLE_"))
@@ -69,8 +63,6 @@ public class SessaoAtualizadaFilter extends OncePerRequestFilter {
         if (!perfis.equals(Set.of("ROLE_" + usuario.getRole().name()))) {
             return true;
         }
-        // Senha trocada depois do login: a sessão antiga deixa de valer.
-        // Sessões sem o atributo (anteriores a esta versão) não são afetadas.
         Object versao = sessao == null ? null : sessao.getAttribute(LoginSuccessHandler.ATRIBUTO_VERSAO);
         return versao instanceof Integer v && v != usuario.getVersaoCredencial();
     }

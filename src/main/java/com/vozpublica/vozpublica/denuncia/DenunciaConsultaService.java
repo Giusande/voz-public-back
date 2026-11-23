@@ -20,8 +20,7 @@ public class DenunciaConsultaService {
     public static final int TAMANHO_PAGINA = 10;
 
     public record Contadores(long curtidas, long incentivos, long comentarios) {}
-
-    /** fotos: id da ocorrência -> id da primeira foto (ausente se não tiver foto). */
+    
     public record Resultado(Page<Denuncia> page, Map<Long, Contadores> contadores, Map<Long, Long> fotos) {}
 
     private final DenunciaRepository denunciaRepository;

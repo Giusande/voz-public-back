@@ -38,7 +38,6 @@ public class Comentario {
 
     public boolean isOculto() { return oculto; }
 
-    /** Uso restrito ao ModeracaoService, que é protegido por @PreAuthorize. */
     public void definirOculto(boolean oculto) { this.oculto = oculto; }
 
     public Long getId() { return id; }

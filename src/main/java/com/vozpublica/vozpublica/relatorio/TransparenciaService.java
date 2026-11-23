@@ -24,7 +24,6 @@ public class TransparenciaService {
         this.relatorioService = relatorioService;
     }
 
-    /** Só o período é aceito: nenhum outro filtro chega à consulta pública. */
     public Painel painel(LocalDate de, LocalDate ate) {
         String chave = de + "|" + ate;
         Instant agora = Instant.now();

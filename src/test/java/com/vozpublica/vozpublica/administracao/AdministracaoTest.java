@@ -122,7 +122,6 @@ class AdministracaoTest {
         criarUnidade(equipeSobreEquipe, "EQUIPE", equipe.getId()).andExpect(flash().attributeExists("erro"));
         assertThat(existe(equipeSobreEquipe)).isFalse();
 
-        // secretaria ignora a unidade superior enviada
         String secComPai = "SecComPai-" + UUID.randomUUID();
         criarUnidade(secComPai, "SECRETARIA", sec.getId()).andExpect(flash().attributeExists("mensagem"));
         assertThat(buscar(secComPai).getPai()).isNull();

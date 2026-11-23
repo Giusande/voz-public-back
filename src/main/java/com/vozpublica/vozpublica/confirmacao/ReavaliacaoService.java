@@ -9,7 +9,6 @@ import java.util.List;
 @Service
 public class ReavaliacaoService {
 
-    /** Mínimo de pessoas dizendo "continua presente" para sinalizar a reavaliação. */
     public static final long MINIMO = 3;
 
     private final ReavaliacaoRepository repository;

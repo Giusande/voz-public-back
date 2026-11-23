@@ -34,7 +34,6 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             throws IOException, ServletException {
         limitador.limpar(ChavesLogin.par(ChavesLogin.emailDe(request), request.getRemoteAddr()));
 
-        // Se a senha mudar depois, o filtro de sessão encerra esta sessão
         userRepository.findByEmail(authentication.getName().trim().toLowerCase()).ifPresent(u ->
                 request.getSession().setAttribute(ATRIBUTO_VERSAO, u.getVersaoCredencial()));
 

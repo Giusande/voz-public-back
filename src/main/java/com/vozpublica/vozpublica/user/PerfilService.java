@@ -17,7 +17,6 @@ public class PerfilService {
 
     private static final int TAMANHO_PAGINA = 10;
 
-    /** membroDesde e apoios são nulos quando o cidadão não autorizou a exibição (e quem vê não é o dono). */
     public record Publico(User usuario, boolean dono, LocalDateTime membroDesde, Long apoios,
                           DenunciaConsultaService.Resultado publicacoes) {}
 
@@ -34,7 +33,6 @@ public class PerfilService {
         this.apoioRepository = apoioRepository;
     }
 
-    /** Vazio = 404: não existe, está suspenso, ou é privado e quem pede não é o dono. */
     @Transactional(readOnly = true)
     public Optional<Publico> carregar(Long id, String emailOuNull, int pagina) {
         Optional<User> encontrado = userRepository.findById(id).filter(User::isEnabled);
@@ -75,7 +73,6 @@ public class PerfilService {
         return form;
     }
 
-    /** Sempre altera a conta de quem está logado: o alvo nunca vem da requisição. */
     @Transactional
     public void atualizarPrivacidade(String email, ConfigPerfilForm form) {
         User u = usuario(email);

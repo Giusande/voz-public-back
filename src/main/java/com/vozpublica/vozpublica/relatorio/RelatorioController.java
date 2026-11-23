@@ -42,7 +42,7 @@ public class RelatorioController {
 
     @GetMapping("/dashboard")
     public String dashboard(@ModelAttribute("filtro") FiltroRelatorio filtro,
-                            BindingResult binding, // valores inválidos nos filtros são ignorados
+                            BindingResult binding,
                             Model model) {
         model.addAttribute("painel", relatorioService.painel(filtro));
         opcoes(model);

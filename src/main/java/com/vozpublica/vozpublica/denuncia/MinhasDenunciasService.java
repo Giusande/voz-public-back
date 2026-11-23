@@ -23,11 +23,6 @@ public class MinhasDenunciasService {
 
     private static final int TAMANHO_PAGINA = 10;
 
-    /**
-     * principais: id da principal -> ocorrência (para as agrupadas);
-     * encaminhamentos: id da ocorrência -> encaminhamento atual;
-     * solicitacoes: id da ocorrência -> pedidos de informação, do mais recente ao mais antigo.
-     */
     public record Visao(Page<Denuncia> page, Map<Long, Contadores> contadores,
                         Map<Long, Denuncia> principais, Map<Long, Encaminhamento> encaminhamentos,
                         Map<Long, List<SolicitacaoInfo>> solicitacoes) {}
@@ -52,7 +47,6 @@ public class MinhasDenunciasService {
         this.solicitacaoRepository = solicitacaoRepository;
     }
 
-    /** O autor vem do login, nunca da requisição. */
     @Transactional(readOnly = true)
     public Visao listar(String email, int pagina) {
         Long autorId = userRepository.findByEmail(email.trim().toLowerCase())

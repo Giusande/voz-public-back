@@ -26,7 +26,6 @@ public class SolicitacaoInfo {
     @Column(name = "data_solicitacao", nullable = false, updatable = false)
     private LocalDateTime dataSolicitacao = LocalDateTime.now();
 
-    // preenchidos só pela consulta de atualização do repositório, uma única vez
     @Column(length = 2000)
     private String resposta;
 

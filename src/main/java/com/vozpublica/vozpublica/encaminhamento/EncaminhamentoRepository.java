@@ -17,7 +17,6 @@ public interface EncaminhamentoRepository extends JpaRepository<Encaminhamento, 
     @EntityGraph(attributePaths = {"unidade", "unidade.pai", "servidor", "responsavel"})
     Optional<Encaminhamento> findFirstByDenunciaIdOrderByIdDesc(Long denunciaId);
 
-    /** O encaminhamento atual (o de maior id) de cada ocorrência da lista, em uma consulta só. */
     @EntityGraph(attributePaths = {"unidade", "unidade.pai"})
     @Query("SELECT e FROM Encaminhamento e WHERE e.denunciaId IN :ids AND e.id = "
             + "(SELECT MAX(x.id) FROM Encaminhamento x WHERE x.denunciaId = e.denunciaId)")

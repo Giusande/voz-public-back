@@ -19,7 +19,6 @@ public enum TipoUnidade {
         return this == DEPARTAMENTO || this == EQUIPE;
     }
 
-    /** Tipos de unidade superior aceitos para este tipo. */
     public Set<TipoUnidade> paisPermitidos() {
         return switch (this) {
             case DEPARTAMENTO -> EnumSet.of(SECRETARIA, ORGAO);

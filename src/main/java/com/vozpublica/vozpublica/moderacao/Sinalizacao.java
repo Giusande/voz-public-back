@@ -50,7 +50,6 @@ public class Sinalizacao {
 
     protected Sinalizacao() {}
 
-    /** Uso restrito ao ModeracaoService, que é protegido por @PreAuthorize. */
     public void encerrar(StatusSinalizacao novo, Long analistaId, String justificativa) {
         this.status = novo;
         this.analisadoPorId = analistaId;

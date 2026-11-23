@@ -24,7 +24,6 @@ public enum StatusDenuncia {
 
     public String getClasseCor() { return classeCor; }
 
-    /** Situações para as quais a equipe pode mover a ocorrência a partir desta. */
     public Set<StatusDenuncia> proximos() {
         return switch (this) {
             case RECEBIDA -> EnumSet.of(EM_ANALISE, INDEFERIDA);

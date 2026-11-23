@@ -17,7 +17,7 @@ public class TransparenciaController {
 
     @GetMapping("/transparencia")
     public String pagina(@ModelAttribute("filtro") FiltroRelatorio filtro,
-                         BindingResult binding, // datas inválidas são ignoradas
+                         BindingResult binding,
                          Model model) {
         model.addAttribute("painel", service.painel(filtro.getDe(), filtro.getAte()));
         return "transparencia";

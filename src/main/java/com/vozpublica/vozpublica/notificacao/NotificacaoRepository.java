@@ -15,7 +15,6 @@ public interface NotificacaoRepository extends JpaRepository<Notificacao, Long> 
             + "WHERE u.email = :email AND n.usuarioId = u.id AND n.lida = false")
     long contarNaoLidas(@Param("email") String email);
 
-    /** O filtro por dono garante que ninguém marca a notificação de outra pessoa. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Notificacao n SET n.lida = true "
             + "WHERE n.id = :id AND n.usuarioId = :usuarioId AND n.lida = false")

@@ -29,11 +29,7 @@ public class AuditoriaService {
         this.auditoriaRepository = auditoriaRepository;
         this.userRepository = userRepository;
     }
-
-    /**
-     * Só funciona dentro de uma transação já aberta (MANDATORY): o registro é gravado
-     * junto com a ação e desfeito junto com ela.
-     */
+    
     @Transactional(propagation = Propagation.MANDATORY)
     public void registrar(String emailResponsavel, AcaoAuditoria acao, String entidade,
                           Long entidadeId, String justificativa, String detalhes) {

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-/** Criada e alterada por SQL nativo (upsert): a entidade só serve para leitura. */
 @Entity
 @Table(name = "confirmacoes")
 public class Confirmacao {

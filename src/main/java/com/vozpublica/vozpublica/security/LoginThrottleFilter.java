@@ -8,7 +8,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/** Recusa a tentativa de login, mesmo com a senha certa, enquanto o par e-mail+IP ou o IP estiver bloqueado. */
 public class LoginThrottleFilter extends OncePerRequestFilter {
 
     private final LimitadorTentativas limitador;

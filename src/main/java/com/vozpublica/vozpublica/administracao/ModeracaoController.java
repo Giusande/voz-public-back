@@ -79,7 +79,6 @@ public class ModeracaoController {
         return voltar(denunciaId);
     }
 
-    /** O destino é montado só com um número (Long): não há como redirecionar para outro site. */
     private static String voltar(Long denunciaId) {
         return denunciaId != null ? "redirect:/denuncias/" + denunciaId : "redirect:/admin/moderacao";
     }

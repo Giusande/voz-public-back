@@ -56,7 +56,6 @@ public class UnidadeAdminService {
         try {
             criada = unidadeRepository.saveAndFlush(new Unidade(limpo, tipo, pai));
         } catch (DataIntegrityViolationException e) {
-            // duas requisições simultâneas: o índice único do banco barra a segunda
             throw new UnidadeInvalidaException("Já existe uma unidade com esse nome nesse local.");
         }
 

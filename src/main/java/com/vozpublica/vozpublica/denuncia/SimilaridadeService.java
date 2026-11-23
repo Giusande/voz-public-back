@@ -38,7 +38,6 @@ public class SimilaridadeService {
 
         if (bairroNorm.isEmpty() && !temCoordenadas) return List.of();
 
-        // Sem coordenadas, usamos uma faixa impossível (1000..1001), que nunca casa com nada
         BigDecimal latMin = temCoordenadas ? latitude.subtract(DELTA_GRAUS) : BigDecimal.valueOf(1000);
         BigDecimal latMax = temCoordenadas ? latitude.add(DELTA_GRAUS) : BigDecimal.valueOf(1001);
         BigDecimal lonMin = temCoordenadas ? longitude.subtract(DELTA_GRAUS) : BigDecimal.valueOf(1000);
@@ -75,7 +74,6 @@ public class SimilaridadeService {
         return resultado.size() > MAX_RESULTADOS ? resultado.subList(0, MAX_RESULTADOS) : resultado;
     }
 
-    /** Palavras com 4+ letras, sem acentos e em minúsculas. */
     private static Set<String> palavras(String texto) {
         Set<String> conjunto = new HashSet<>();
         if (texto == null) return conjunto;
@@ -86,8 +84,7 @@ public class SimilaridadeService {
         }
         return conjunto;
     }
-
-    /** Distância entre dois pontos (fórmula de Haversine). */
+    
     private static double distanciaMetros(double lat1, double lon1, double lat2, double lon2) {
         double r = 6_371_000;
         double dLat = Math.toRadians(lat2 - lat1);

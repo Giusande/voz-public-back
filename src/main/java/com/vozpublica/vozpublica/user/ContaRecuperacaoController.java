@@ -22,22 +22,17 @@ public class ContaRecuperacaoController {
         this.emailService = emailService;
     }
 
-    // ---- esqueci minha senha ----
-
     @GetMapping("/recuperar-senha")
     public String recuperarForm() {
         return "recuperar-senha";
     }
 
-    /** Resposta sempre igual, exista a conta ou não. O e-mail só sai depois que a transação terminou. */
     @PostMapping("/recuperar-senha")
     public String recuperar(@RequestParam(required = false) String email, HttpServletRequest request) {
         servico.solicitarRecuperacao(email, request.getRemoteAddr())
                 .ifPresent(e -> emailService.enviarRecuperacao(e.destino(), e.nome(), e.token()));
         return "redirect:/recuperar-senha?enviado";
     }
-
-    // ---- nova senha ----
 
     @GetMapping("/redefinir-senha")
     public String redefinirForm(@RequestParam(required = false) String token, Model model) {
@@ -58,7 +53,7 @@ public class ContaRecuperacaoController {
         }
         model.addAttribute("tokenValido", true);
         if (result.hasErrors()) {
-            return "redefinir-senha"; // o token não foi gasto
+            return "redefinir-senha"; 
         }
         if (!servico.redefinirSenha(form.getToken(), form.getPassword(), request.getRemoteAddr())) {
             model.addAttribute("tokenValido", false);
@@ -67,9 +62,6 @@ public class ContaRecuperacaoController {
         return "redirect:/login?senhaRedefinida";
     }
 
-    // ---- verificação de e-mail ----
-
-    /** Abrir o link não confirma nada: a confirmação é o POST do botão. */
     @GetMapping("/verificar-email")
     public String verificarPagina(@RequestParam(required = false) String token, Model model) {
         boolean valido = servico.tokenVerificacaoValido(token);

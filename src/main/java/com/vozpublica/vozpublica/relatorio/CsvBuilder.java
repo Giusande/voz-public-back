@@ -2,7 +2,6 @@ package com.vozpublica.vozpublica.relatorio;
 
 import java.nio.charset.StandardCharsets;
 
-/** CSV para o Excel em português: ';' como separador, UTF-8 com BOM, quebra de linha CRLF. */
 final class CsvBuilder {
 
     private static final char SEPARADOR = ';';
@@ -18,10 +17,6 @@ final class CsvBuilder {
         return this;
     }
 
-    /**
-     * Neutraliza "CSV injection": texto iniciado por = + - @ (ou TAB/CR) ganha um apóstrofo,
-     * para o Excel não interpretá-lo como fórmula. Depois, aplica as aspas do CSV quando preciso.
-     */
     static String celula(String valor) {
         if (valor == null || valor.isEmpty()) return "";
         String v = valor;

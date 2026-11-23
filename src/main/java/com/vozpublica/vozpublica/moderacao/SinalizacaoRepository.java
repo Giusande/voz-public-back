@@ -14,7 +14,6 @@ import java.util.Optional;
 
 public interface SinalizacaoRepository extends JpaRepository<Sinalizacao, Long> {
 
-    /** Devolve 1 se gravou e 0 se este usuário já tinha sinalizado este conteúdo. */
     @Modifying
     @Query(value = "INSERT INTO sinalizacoes (tipo, alvo_id, denuncia_id, usuario_id, motivo, detalhe) "
             + "VALUES (:tipo, :alvoId, :denunciaId, :usuarioId, :motivo, :detalhe) "

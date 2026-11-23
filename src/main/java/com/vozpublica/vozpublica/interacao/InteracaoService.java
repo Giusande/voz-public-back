@@ -32,7 +32,6 @@ public class InteracaoService {
         this.userRepository = userRepository;
     }
 
-    /** Curte ou descurte. Retorna true se a ocorrência ficou curtida. */
     @Transactional
     public boolean alternarCurtida(Long denunciaId, String email) {
         garantirDenuncia(denunciaId);
@@ -45,7 +44,6 @@ public class InteracaoService {
         return true;
     }
 
-    /** Incentiva uma única vez. Retorna true se este foi o incentivo gravado. */
     @Transactional
     public boolean incentivar(Long denunciaId, String email) {
         garantirDenuncia(denunciaId);
@@ -53,10 +51,6 @@ public class InteracaoService {
         return incentivoRepository.inserir(denunciaId, usuarioId) > 0;
     }
 
-    /**
-     * emailOuNull = visitante (sem login). Os incentivos são consolidados: contam as pessoas
-     * distintas que apoiaram a ocorrência ou qualquer duplicada agrupada a ela.
-     */
     @Transactional(readOnly = true)
     public Resumo resumo(Long denunciaId, String emailOuNull) {
         long curtidas = curtidaRepository.countByDenunciaId(denunciaId);
@@ -89,7 +83,6 @@ public class InteracaoService {
         }
     }
 
-    /** Quais das ocorrências da lista este usuário já curtiu e incentivou. Visitante: tudo vazio. */
     @Transactional(readOnly = true)
     public Marcas marcas(Collection<Long> ids, String emailOuNull) {
         if (emailOuNull == null || ids.isEmpty()) {

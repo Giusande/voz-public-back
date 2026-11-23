@@ -38,10 +38,9 @@ public class HomeController {
         this.categoriaRepository = categoriaRepository;
     }
 
-    /** "/denuncias" é um apelido do feed: os links e os favoritos antigos continuam funcionando. */
     @GetMapping({"/", "/denuncias"})
     public String home(@ModelAttribute("filtro") FiltroDenuncia filtro,
-                       BindingResult binding, // valores inválidos nos filtros são ignorados
+                       BindingResult binding, 
                        @RequestParam(defaultValue = "0") int pagina,
                        Authentication authentication,
                        Model model) {
@@ -56,14 +55,12 @@ public class HomeController {
         model.addAttribute("curtidos", marcas.curtidas());
         model.addAttribute("incentivados", marcas.incentivos());
 
-        // opções do bloco de filtros
         model.addAttribute("categorias", categoriaRepository.findByAtivaTrueOrderByNome());
         model.addAttribute("regioes", REGIOES);
         model.addAttribute("prioridades", Prioridade.values());
         model.addAttribute("statuses", StatusDenuncia.values());
         model.addAttribute("ordens", FiltroDenuncia.Ordem.values());
 
-        // Mais incentivadas: só as que têm ao menos um incentivo
         FiltroDenuncia porIncentivo = new FiltroDenuncia();
         porIncentivo.setOrdem(FiltroDenuncia.Ordem.INCENTIVADAS);
         var top = consulta.buscar(porIncentivo, 0);

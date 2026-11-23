@@ -42,14 +42,13 @@ public class User {
     @Column(name = "exibir_apoios", nullable = false)
     private boolean exibirApoios = false;
 
-    /** Verdadeiro por padrão; o UserService marca como pendente as contas novas quando a verificação é obrigatória. */
     @Column(name = "email_verificado", nullable = false)
     private boolean emailVerificado = true;
 
     @Column(name = "versao_credencial", nullable = false)
     private int versaoCredencial = 0;
 
-    protected User() {} // exigido pelo JPA
+    protected User() {} 
 
     public User(String name, String email, String passwordHash, Role role) {
         this.name = name;
@@ -66,7 +65,6 @@ public class User {
         this.enabled = ativo;
     }
 
-    /** Package-private: só o PerfilService altera a privacidade, e sempre da própria conta. */
     void atualizarPrivacidade(String nomePublico, boolean perfilPublico,
                               boolean exibirDataCadastro, boolean exibirApoios) {
         this.nomePublico = nomePublico;
@@ -83,13 +81,11 @@ public class User {
         this.emailVerificado = true;
     }
 
-    /** Troca a senha e sobe a versão: as sessões abertas antes deixam de valer. */
     void trocarSenha(String novoHash) {
         this.passwordHash = novoHash;
         this.versaoCredencial++;
     }
 
-    /** Nome mostrado publicamente: o nome público, se houver; senão o nome completo. */
     public String getNomeExibicao() {
         return nomePublico == null || nomePublico.isBlank() ? name : nomePublico;
     }

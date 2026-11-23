@@ -28,7 +28,6 @@ public class TokenConta {
     @Column(name = "expira_em", nullable = false, updatable = false)
     private LocalDateTime expiraEm;
 
-    // só é preenchido pelas consultas de atualização do repositório
     @Column(name = "usado_em")
     private LocalDateTime usadoEm;
 

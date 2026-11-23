@@ -34,7 +34,6 @@ public class MapaController {
         return "mapa";
     }
 
-    /** valores inválidos nos filtros são ignorados, como na listagem */
     @GetMapping("/mapa/dados")
     @ResponseBody
     public MapaService.Resultado dados(@ModelAttribute("filtro") FiltroDenuncia filtro, BindingResult binding) {

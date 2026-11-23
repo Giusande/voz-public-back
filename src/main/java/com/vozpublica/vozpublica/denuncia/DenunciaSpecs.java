@@ -49,13 +49,11 @@ public final class DenunciaSpecs {
                         f.getAte().plusDays(1).atStartOfDay()));
             }
 
-            // A ordenação só vale na consulta de dados, não na de contagem da paginação
             Class<?> tipo = query.getResultType();
             boolean contagem = Long.class.equals(tipo) || long.class.equals(tipo);
             if (!contagem) {
                 switch (f.getOrdem()) {
                     case INCENTIVADAS -> {
-                        // Pessoas distintas que incentivaram esta ocorrência ou qualquer duplicada agrupada a ela
                         Subquery<Long> total = query.subquery(Long.class);
                         Root<Incentivo> inc = total.from(Incentivo.class);
                         Subquery<Long> filhas = total.subquery(Long.class);
@@ -86,7 +84,6 @@ public final class DenunciaSpecs {
         };
     }
 
-    /** Prioridade oficial, se existir; senão a sugerida pelo cidadão. */
     private static Predicate prioridadeEfetiva(Root<Denuncia> root, CriteriaBuilder cb, Prioridade p) {
         return cb.or(
                 cb.equal(root.get("prioridadeOficial"), p),
@@ -94,7 +91,6 @@ public final class DenunciaSpecs {
                        cb.equal(root.get("prioridadeSugerida"), p)));
     }
 
-    /** Impede que % e _ digitados pelo usuário funcionem como curingas do LIKE. */
     private static String escapar(String s) {
         return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

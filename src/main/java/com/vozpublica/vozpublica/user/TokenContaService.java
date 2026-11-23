@@ -22,7 +22,6 @@ public class TokenContaService {
     public static final Duration VALIDADE_REDEFINICAO = Duration.ofHours(1);
 
     private static final SecureRandom ALEATORIO = new SecureRandom();
-    /** 32 bytes em Base64 URL, sem preenchimento, dão 43 caracteres. */
     private static final Pattern FORMATO = Pattern.compile("[A-Za-z0-9_-]{43}");
 
     private final TokenContaRepository repository;
@@ -33,7 +32,6 @@ public class TokenContaService {
         this.clock = clock;
     }
 
-    /** Devolve o token em texto (para o e-mail). No banco fica só o hash. Invalida os pendentes do mesmo tipo. */
     @Transactional
     public String emitir(Long usuarioId, TipoToken tipo) {
         LocalDateTime agora = LocalDateTime.now(clock);
@@ -47,7 +45,6 @@ public class TokenContaService {
         return bruto;
     }
 
-    /** Usa o token (uma única vez). Devolve o id do usuário, ou vazio se for inválido, usado ou expirado. */
     @Transactional
     public Optional<Long> consumir(String bruto, TipoToken tipo) {
         if (!formatoValido(bruto)) return Optional.empty();
@@ -59,7 +56,6 @@ public class TokenContaService {
         return usuarioId;
     }
 
-    /** Só consulta: não consome. Usado para decidir o que a página mostra. */
     @Transactional(readOnly = true)
     public boolean valido(String bruto, TipoToken tipo) {
         if (!formatoValido(bruto)) return false;

@@ -18,7 +18,6 @@ import java.util.List;
 @Service
 public class EncaminhamentoDetalheService {
 
-    /** historico: do mais recente ao mais antigo; atual é o primeiro (ou null). */
     public record Visao(List<Encaminhamento> historico, Encaminhamento atual, Prazo prazo) {}
 
     public record Opcoes(List<Unidade> unidades, List<User> servidores) {}
@@ -38,7 +37,6 @@ public class EncaminhamentoDetalheService {
         this.userRepository = userRepository;
     }
 
-    /** A denúncia deve ter vindo com a categoria carregada (findComDetalhesById faz isso). */
     @Transactional(readOnly = true)
     public Visao carregar(Denuncia denuncia) {
         List<Encaminhamento> historico =
